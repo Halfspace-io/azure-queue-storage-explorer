@@ -42,6 +42,8 @@ jobs:
         
     - name: Get latest release version
       id: latest-release
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         LATEST_RELEASE=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' 2>/dev/null || echo "")
         if [ -z "$LATEST_RELEASE" ]; then
@@ -91,6 +93,8 @@ jobs:
         fi
         
     - name: Create release
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         CURRENT_VERSION="${{ steps.current-version.outputs.current-version }}"
         CHANGELOG_ENTRY=$(awk "/## \[$CURRENT_VERSION\]/,/## \[/" CHANGELOG.md | head -n -1)
@@ -101,6 +105,8 @@ jobs:
           --generate-notes
           
     - name: Upload release assets
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         CURRENT_VERSION="${{ steps.current-version.outputs.current-version }}"
         

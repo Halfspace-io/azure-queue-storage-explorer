@@ -48,6 +48,8 @@ jobs:
         
     - name: Check if already published
       id: check-published
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         RELEASE_TAG="${{ steps.release-tag.outputs.release-tag }}"
         
@@ -62,6 +64,8 @@ jobs:
         
     - name: Package extension
       if: steps.check-published.outputs.already-published == 'false'
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         # Install vsce
         npm install -g @vscode/vsce
@@ -80,6 +84,7 @@ jobs:
     - name: Publish to VS Code Marketplace
       env:
         VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        GH_TOKEN: ${{ github.token }}
       run: |
         # Install vsce
         npm install -g @vscode/vsce
@@ -105,6 +110,8 @@ jobs:
         echo "✅ Successfully published $RELEASE_TAG to VS Code Marketplace!"
         
     - name: Update release notes
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         RELEASE_TAG="${{ steps.release-tag.outputs.release-tag }}"
         

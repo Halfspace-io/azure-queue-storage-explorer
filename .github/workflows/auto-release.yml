@@ -47,23 +47,10 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        # First, let's see all releases to debug
-        echo "Checking for existing releases..."
-        gh release list --limit 5 || echo "No releases found or error occurred"
-        
-        # Get the latest release, handling empty results properly
         LATEST_RELEASE=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' 2>/dev/null || echo "")
-        
-        echo "Raw latest release result: '$LATEST_RELEASE'"
-        
-        # Check if we got a valid release or if the result is empty/null
-        if [ -z "$LATEST_RELEASE" ] || [ "$LATEST_RELEASE" = "null" ]; then
+        if [ -z "$LATEST_RELEASE" ]; then
           LATEST_RELEASE="v0.0.0"
-          echo "No previous releases found, using v0.0.0 as baseline"
-        else
-          echo "Found latest release: $LATEST_RELEASE"
         fi
-        
         echo "latest-release=$LATEST_RELEASE" >> $GITHUB_OUTPUT
         echo "Latest release: $LATEST_RELEASE"
         
@@ -73,21 +60,15 @@ jobs:
         CURRENT_VERSION="${{ steps.current-version.outputs.current-version }}"
         LATEST_RELEASE="${{ steps.latest-release.outputs.latest-release }}"
         
-        echo "Debug: Current version from package.json: '$CURRENT_VERSION'"
-        echo "Debug: Latest release from GitHub: '$LATEST_RELEASE'"
-        
         # Remove 'v' prefix for comparison
         CURRENT_NUM=${CURRENT_VERSION#v}
         LATEST_NUM=${LATEST_RELEASE#v}
         
-        echo "Debug: Current number: '$CURRENT_NUM'"
-        echo "Debug: Latest number: '$LATEST_NUM'"
         echo "Comparing: $CURRENT_NUM vs $LATEST_NUM"
         
         # Simple version comparison using sort
         if [ "$CURRENT_NUM" = "$LATEST_NUM" ]; then
           echo "❌ Version $CURRENT_VERSION is the same as $LATEST_RELEASE"
-          echo "This means a release with this version already exists."
           echo "Please bump the version in package.json before merging to main"
           exit 1
         fi

@@ -1,0 +1,88 @@
+name: Release and Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: latest
+        
+    - name: Install dependencies
+      run: pnpm install
+      
+    - name: Compile TypeScript
+      run: pnpm run compile
+      
+    - name: Run tests
+      run: pnpm test
+      
+    - name: Lint code
+      run: pnpm run lint
+      
+    - name: Install vsce
+      run: npm install -g @vscode/vsce
+      
+    - name: Package extension
+      run: vsce package
+      
+    - name: Publish to VS Code Marketplace
+      env:
+        VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      run: vsce publish
+      if: startsWith(github.ref, 'refs/tags/v')
+      
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          ## What's New
+          
+          Check the [CHANGELOG.md](./CHANGELOG.md) for detailed changes.
+          
+          ## Installation
+          
+          Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=wojciech-ciok.azure-queue-storage-explorer) or search for "Azure Queue Storage Explorer" in VS Code.
+          
+          ## Features
+          
+          - 🏗️ Create and manage Azure Queue Storage queues
+          - 💬 Add, view, and remove individual messages
+          - 🗑️ Bulk operations (clear messages, delete queues)
+          - ⚡ Inline actions in tree view
+          - 🏠 Works with local Azurite emulator
+        draft: false
+        prerelease: false

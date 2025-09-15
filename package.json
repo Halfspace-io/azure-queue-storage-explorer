@@ -75,7 +75,7 @@
       }
     ],
     "views": {
-      "explorer": [
+      "azure-queue-storage-explorer": [
         {
           "id": "azure-queue-storage-explorer.queues",
           "name": "Azure Queues",
@@ -123,8 +123,8 @@
       "activitybar": [
         {
           "id": "azure-queue-storage-explorer",
-          "title": "Azure Queue Storage Explorer",
-          "icon": "$(database)"
+          "title": "Local Azure Queues",
+          "icon": "$(mail)"
         }
       ]
     }

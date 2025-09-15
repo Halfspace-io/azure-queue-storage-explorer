@@ -1,11 +1,14 @@
 import * as vscode from 'vscode';
 import { QueueProvider } from './queueProvider';
+import { QueueTreeDataProvider } from './queueTreeDataProvider';
 
 export class ClearMessagesCommand {
     private queueProvider: QueueProvider;
+    private treeDataProvider: QueueTreeDataProvider;
 
-    constructor(queueProvider: QueueProvider) {
+    constructor(queueProvider: QueueProvider, treeDataProvider: QueueTreeDataProvider) {
         this.queueProvider = queueProvider;
+        this.treeDataProvider = treeDataProvider;
     }
 
     async execute(): Promise<void> {
@@ -42,6 +45,9 @@ export class ClearMessagesCommand {
 
             // Clear the messages
             await this.queueProvider.clearMessages();
+            
+            // Refresh the tree view
+            this.treeDataProvider.refresh();
             
             vscode.window.showInformationMessage(`All messages cleared from queue: ${selectedQueue}`);
 

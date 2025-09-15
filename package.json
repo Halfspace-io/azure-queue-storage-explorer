@@ -37,8 +37,40 @@
       {
         "command": "azure-queue-storage-explorer.removeQueue",
         "title": "Queue: Remove Queue"
+      },
+      {
+        "command": "azure-queue-storage-explorer.refreshQueues",
+        "title": "Refresh",
+        "icon": "$(refresh)"
       }
-    ]
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "azure-queue-storage-explorer.queues",
+          "name": "Azure Queues",
+          "when": "true"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "azure-queue-storage-explorer.refreshQueues",
+          "when": "view == azure-queue-storage-explorer.queues",
+          "group": "navigation"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "azure-queue-storage-explorer",
+          "title": "Azure Queue Storage Explorer",
+          "icon": "$(database)"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "pnpm run compile",

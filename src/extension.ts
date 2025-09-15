@@ -7,6 +7,7 @@ import { ListMessagesCommand } from './listMessagesCommand';
 import { AddMessageCommand } from './addMessageCommand';
 import { ClearMessagesCommand } from './clearMessagesCommand';
 import { RemoveQueueCommand } from './removeQueueCommand';
+import { QueueTreeDataProvider } from './queueTreeDataProvider';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -18,11 +19,15 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Initialize the queue provider
 	const queueProvider = new QueueProvider();
-	const createQueueCommand = new CreateQueueCommand(queueProvider);
+	
+	// Initialize the tree data provider
+	const queueTreeDataProvider = new QueueTreeDataProvider(queueProvider);
+	
+	const createQueueCommand = new CreateQueueCommand(queueProvider, queueTreeDataProvider);
 	const listMessagesCommand = new ListMessagesCommand(queueProvider);
-	const addMessageCommand = new AddMessageCommand(queueProvider);
-	const clearMessagesCommand = new ClearMessagesCommand(queueProvider);
-	const removeQueueCommand = new RemoveQueueCommand(queueProvider);
+	const addMessageCommand = new AddMessageCommand(queueProvider, queueTreeDataProvider);
+	const clearMessagesCommand = new ClearMessagesCommand(queueProvider, queueTreeDataProvider);
+	const removeQueueCommand = new RemoveQueueCommand(queueProvider, queueTreeDataProvider);
 
 	// Register commands
 	const createQueueDisposable = vscode.commands.registerCommand('azure-queue-storage-explorer.createQueue', () => {
@@ -45,7 +50,16 @@ export function activate(context: vscode.ExtensionContext) {
 		removeQueueCommand.execute();
 	});
 
-	context.subscriptions.push(createQueueDisposable, listMessagesDisposable, addMessageDisposable, clearMessagesDisposable, removeQueueDisposable);
+	const refreshQueuesDisposable = vscode.commands.registerCommand('azure-queue-storage-explorer.refreshQueues', () => {
+		queueTreeDataProvider.refresh();
+	});
+
+	// Register the tree view
+	vscode.window.createTreeView('azure-queue-storage-explorer.queues', {
+		treeDataProvider: queueTreeDataProvider
+	});
+
+	context.subscriptions.push(createQueueDisposable, listMessagesDisposable, addMessageDisposable, clearMessagesDisposable, removeQueueDisposable, refreshQueuesDisposable);
 }
 
 // This method is called when your extension is deactivated

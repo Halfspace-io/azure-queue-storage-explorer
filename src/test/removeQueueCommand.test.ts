@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import { RemoveQueueCommand } from '../removeQueueCommand';
 import { QueueProvider } from '../queueProvider';
 import { AzuriteHealthCheck } from '../azuriteHealthCheck';
+import { QueueTreeDataProvider } from '../queueTreeDataProvider';
 
 suite('RemoveQueueCommand Tests', () => {
     let queueProvider: QueueProvider;
@@ -20,7 +21,8 @@ suite('RemoveQueueCommand Tests', () => {
         }
 
         queueProvider = new QueueProvider();
-        removeQueueCommand = new RemoveQueueCommand(queueProvider);
+        const treeDataProvider = new QueueTreeDataProvider(queueProvider);
+        removeQueueCommand = new RemoveQueueCommand(queueProvider, treeDataProvider);
         testQueueName = 'test-remove-queue-' + Date.now();
         
         // Create a test queue
@@ -166,7 +168,8 @@ suite('RemoveQueueCommand Tests', () => {
             getQueues: async () => { throw new Error('Connection failed'); }
         } as any;
 
-        const errorCommand = new RemoveQueueCommand(mockQueueProvider);
+        const mockTreeDataProvider = { refresh: () => {} } as any;
+        const errorCommand = new RemoveQueueCommand(mockQueueProvider, mockTreeDataProvider);
 
         // Mock showErrorMessage to capture the error message
         let capturedErrorMessage = '';
@@ -197,7 +200,8 @@ suite('RemoveQueueCommand Tests', () => {
             getQueues: async () => []
         } as any;
 
-        const noQueuesCommand = new RemoveQueueCommand(mockQueueProvider);
+        const mockTreeDataProvider = { refresh: () => {} } as any;
+        const noQueuesCommand = new RemoveQueueCommand(mockQueueProvider, mockTreeDataProvider);
 
         // Mock showInformationMessage to capture the message
         let capturedMessage = '';

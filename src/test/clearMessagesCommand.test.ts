@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import { ClearMessagesCommand } from '../clearMessagesCommand';
 import { QueueProvider } from '../queueProvider';
 import { AzuriteHealthCheck } from '../azuriteHealthCheck';
+import { QueueTreeDataProvider } from '../queueTreeDataProvider';
 
 suite('ClearMessagesCommand Tests', () => {
     let queueProvider: QueueProvider;
@@ -20,7 +21,8 @@ suite('ClearMessagesCommand Tests', () => {
         }
 
         queueProvider = new QueueProvider();
-        clearMessagesCommand = new ClearMessagesCommand(queueProvider);
+        const treeDataProvider = new QueueTreeDataProvider(queueProvider);
+        clearMessagesCommand = new ClearMessagesCommand(queueProvider, treeDataProvider);
         testQueueName = 'test-clear-queue-' + Date.now();
         
         // Create a test queue
@@ -169,7 +171,8 @@ suite('ClearMessagesCommand Tests', () => {
             getQueues: async () => { throw new Error('Connection failed'); }
         } as any;
 
-        const errorCommand = new ClearMessagesCommand(mockQueueProvider);
+        const mockTreeDataProvider = { refresh: () => {} } as any;
+        const errorCommand = new ClearMessagesCommand(mockQueueProvider, mockTreeDataProvider);
 
         // Mock showErrorMessage to capture the error message
         let capturedErrorMessage = '';
@@ -200,7 +203,8 @@ suite('ClearMessagesCommand Tests', () => {
             getQueues: async () => []
         } as any;
 
-        const noQueuesCommand = new ClearMessagesCommand(mockQueueProvider);
+        const mockTreeDataProvider = { refresh: () => {} } as any;
+        const noQueuesCommand = new ClearMessagesCommand(mockQueueProvider, mockTreeDataProvider);
 
         // Mock showInformationMessage to capture the message
         let capturedMessage = '';

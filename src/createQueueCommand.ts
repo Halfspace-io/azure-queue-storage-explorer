@@ -1,11 +1,14 @@
 import * as vscode from 'vscode';
 import { QueueProvider } from './queueProvider';
+import { QueueTreeDataProvider } from './queueTreeDataProvider';
 
 export class CreateQueueCommand {
     private queueProvider: QueueProvider;
+    private treeDataProvider: QueueTreeDataProvider;
 
-    constructor(queueProvider: QueueProvider) {
+    constructor(queueProvider: QueueProvider, treeDataProvider: QueueTreeDataProvider) {
         this.queueProvider = queueProvider;
+        this.treeDataProvider = treeDataProvider;
     }
 
     async execute(): Promise<void> {
@@ -67,6 +70,9 @@ export class CreateQueueCommand {
 
             // Create the queue
             await this.queueProvider.setQueue(trimmedQueueName);
+            
+            // Refresh the tree view
+            this.treeDataProvider.refresh();
             
             vscode.window.showInformationMessage(`Queue '${trimmedQueueName}' created successfully!`);
 

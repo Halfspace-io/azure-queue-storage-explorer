@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import { CreateQueueCommand } from '../createQueueCommand';
 import { QueueProvider } from '../queueProvider';
 import { AzuriteHealthCheck } from '../azuriteHealthCheck';
+import { QueueTreeDataProvider } from '../queueTreeDataProvider';
 
 suite('CreateQueueCommand Tests', () => {
     let queueProvider: QueueProvider;
@@ -19,7 +20,8 @@ suite('CreateQueueCommand Tests', () => {
         }
 
         queueProvider = new QueueProvider();
-        createQueueCommand = new CreateQueueCommand(queueProvider);
+        const treeDataProvider = new QueueTreeDataProvider(queueProvider);
+        createQueueCommand = new CreateQueueCommand(queueProvider, treeDataProvider);
     });
 
     // Helper function to skip tests when Azurite is not running
@@ -235,7 +237,8 @@ suite('CreateQueueCommand Tests', () => {
             getQueues: async () => { throw new Error('Connection failed'); }
         } as any;
 
-        const errorCommand = new CreateQueueCommand(mockQueueProvider);
+        const mockTreeDataProvider = { refresh: () => {} } as any;
+        const errorCommand = new CreateQueueCommand(mockQueueProvider, mockTreeDataProvider);
 
         // Mock showInputBox to return a valid name
         const originalShowInputBox = vscode.window.showInputBox;

@@ -62,16 +62,16 @@ jobs:
         
         echo "Comparing: $CURRENT_NUM vs $LATEST_NUM"
         
-        # Use node to compare versions
-        COMPARISON=$(node -e "
-          const semver = require('semver');
-          const current = '$CURRENT_NUM';
-          const latest = '$LATEST_NUM';
-          const result = semver.compare(current, latest);
-          console.log(result);
-        ")
+        # Simple version comparison using sort
+        if [ "$CURRENT_NUM" = "$LATEST_NUM" ]; then
+          echo "❌ Version $CURRENT_VERSION is the same as $LATEST_RELEASE"
+          echo "Please bump the version in package.json before merging to main"
+          exit 1
+        fi
         
-        if [ "$COMPARISON" -le 0 ]; then
+        # Check if current version is greater using sort
+        HIGHER_VERSION=$(echo -e "$CURRENT_NUM\n$LATEST_NUM" | sort -V | tail -n1)
+        if [ "$HIGHER_VERSION" != "$CURRENT_NUM" ]; then
           echo "❌ Version $CURRENT_VERSION is not greater than $LATEST_RELEASE"
           echo "Please bump the version in package.json before merging to main"
           exit 1

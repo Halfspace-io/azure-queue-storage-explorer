@@ -18,16 +18,16 @@ jobs:
       with:
         fetch-depth: 0
         
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: latest
+        
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'pnpm'
-        
-    - name: Install pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: latest
         
     - name: Install dependencies
       run: pnpm install
@@ -119,10 +119,7 @@ jobs:
         
         # Add marketplace link if not already present
         if ! echo "$CURRENT_BODY" | grep -q "marketplace.visualstudio.com"; then
-          NEW_BODY="$CURRENT_BODY
-
-## 📦 VS Code Marketplace
-[Install from VS Code Marketplace]($MARKETPLACE_URL)"
+          NEW_BODY="$CURRENT_BODY"$'\n\n'"## 📦 VS Code Marketplace"$'\n'"[Install from VS Code Marketplace]($MARKETPLACE_URL)"
           
           gh release edit "$RELEASE_TAG" --notes "$NEW_BODY"
           echo "✅ Updated release notes with marketplace link"

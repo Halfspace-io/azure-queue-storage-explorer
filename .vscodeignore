@@ -1,11 +1,48 @@
+# Exclude development files
 .vscode/**
 .vscode-test/**
-src/**
+.vscode-test.mjs
+src/test/**
+**/*.test.ts
+**/*.test.js
+**/*.spec.ts
+**/*.spec.js
+
+# Exclude build artifacts
+out/test/**
+*.vsix
+
+# Exclude development dependencies
+node_modules/**
+.git/**
+.github/**
 .gitignore
-.yarnrc
-vsc-extension-quickstart.md
-**/tsconfig.json
-**/eslint.config.mjs
-**/*.map
-**/*.ts
-**/.vscode-test.*
+.eslintrc.*
+tsconfig.json
+jest.config.*
+vitest.config.*
+mocha.opts
+
+# Exclude documentation
+README.md
+CHANGELOG.md
+LICENSE
+*.md
+
+# Exclude CI/CD files
+.github/**
+.gitlab-ci.yml
+azure-pipelines.yml
+.travis.yml
+.circleci/**
+
+# Exclude editor files
+.vscode/**
+.idea/**
+*.swp
+*.swo
+*~
+
+# Exclude OS files
+.DS_Store
+Thumbs.db

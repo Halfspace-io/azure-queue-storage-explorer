@@ -73,7 +73,7 @@ jobs:
         npm install -g @vscode/vsce
         
         # Package extension
-        vsce package --out release-assets/
+        vsce package --no-dependencies --out release-assets/
         
         # Upload to release
         for file in release-assets/*.vsix; do

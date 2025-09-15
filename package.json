@@ -167,5 +167,9 @@
     "typescript": "^5.9.2",
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2"
+  },
+  "mocha": {
+    "ui": "tdd",
+    "timeout": 10000
   }
 }

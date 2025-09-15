@@ -11,6 +11,9 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      releases: write
     
     steps:
     - name: Checkout repository
@@ -49,7 +52,7 @@ jobs:
     - name: Check if already published
       id: check-published
       env:
-        GH_TOKEN: ${{ github.token }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         RELEASE_TAG="${{ steps.release-tag.outputs.release-tag }}"
         
@@ -65,7 +68,7 @@ jobs:
     - name: Package extension
       if: steps.check-published.outputs.already-published == 'false'
       env:
-        GH_TOKEN: ${{ github.token }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         # Install vsce
         npm install -g @vscode/vsce
@@ -84,7 +87,7 @@ jobs:
     - name: Publish to VS Code Marketplace
       env:
         VSCE_PAT: ${{ secrets.VSCE_PAT }}
-        GH_TOKEN: ${{ github.token }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         # Install vsce
         npm install -g @vscode/vsce
@@ -111,7 +114,7 @@ jobs:
         
     - name: Update release notes
       env:
-        GH_TOKEN: ${{ github.token }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         RELEASE_TAG="${{ steps.release-tag.outputs.release-tag }}"
         

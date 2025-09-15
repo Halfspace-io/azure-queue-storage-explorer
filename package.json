@@ -1,0 +1,57 @@
+{
+  "name": "azure-queue-storage-explorer",
+  "displayName": "Azure Queue Storage Explorer",
+  "description": "",
+  "version": "0.0.1",
+  "publisher": "wojciech-ciok",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wj-halfspace/azure-queue-storage-explorer.git"
+  },
+  "engines": {
+    "vscode": "^1.104.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "azure-queue-storage-explorer.createQueue",
+        "title": "Queue: Create Queue"
+      },
+      {
+        "command": "azure-queue-storage-explorer.listMessages",
+        "title": "Queue: List Messages"
+      },
+      {
+        "command": "azure-queue-storage-explorer.addMessage",
+        "title": "Queue: Add Message"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "pnpm run compile && pnpm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "dependencies": {
+    "@azure/storage-queue": "^12.19.0"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.104.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "@typescript-eslint/eslint-plugin": "^8.42.0",
+    "@typescript-eslint/parser": "^8.42.0",
+    "eslint": "^9.34.0",
+    "typescript": "^5.9.2",
+    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}

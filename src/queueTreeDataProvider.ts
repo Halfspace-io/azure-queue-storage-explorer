@@ -14,8 +14,14 @@ export class QueueTreeItem extends vscode.TreeItem {
             // This is a queue item
             this.contextValue = 'queue';
             this.iconPath = new vscode.ThemeIcon('database');
-            // Store queue name in the tree item for the command to access
-            (this as any).queueName = queueName;
+            // Store queue name in resourceUri for the inline action to access
+            this.resourceUri = vscode.Uri.parse(`queue:${queueName}`);
+            // Add command to select the queue when clicked
+            this.command = {
+                command: 'azure-queue-storage-explorer.selectQueue',
+                title: 'Select Queue',
+                arguments: [queueName]
+            };
         } else if (messageData) {
             // This is a message item
             this.contextValue = 'message';

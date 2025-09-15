@@ -12,6 +12,7 @@ export class AddMessageCommand {
     }
 
     async execute(queueName?: string): Promise<void> {
+        console.log('AddMessageCommand: execute called with queueName:', queueName, 'Type:', typeof queueName);
         try {
             let selectedQueue: string;
 

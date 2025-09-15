@@ -32,6 +32,15 @@
         "icon": "$(add)"
       },
       {
+        "command": "azure-queue-storage-explorer.selectQueue",
+        "title": "Select Queue"
+      },
+      {
+        "command": "azure-queue-storage-explorer.addMessageToQueue",
+        "title": "Add Message",
+        "icon": "$(add)"
+      },
+      {
         "command": "azure-queue-storage-explorer.clearMessages",
         "title": "Queue: Clear Messages"
       },
@@ -64,7 +73,7 @@
       ],
       "view/item/context": [
         {
-          "command": "azure-queue-storage-explorer.addMessage",
+          "command": "azure-queue-storage-explorer.addMessageToQueue",
           "when": "view == azure-queue-storage-explorer.queues && viewItem == queue",
           "group": "inline"
         }

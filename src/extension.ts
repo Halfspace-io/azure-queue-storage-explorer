@@ -9,6 +9,9 @@ import { ClearMessagesCommand } from './clearMessagesCommand';
 import { RemoveQueueCommand } from './removeQueueCommand';
 import { QueueTreeDataProvider } from './queueTreeDataProvider';
 
+// Global variable to store the currently selected queue name
+let selectedQueueName: string | undefined;
+
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -38,8 +41,18 @@ export function activate(context: vscode.ExtensionContext) {
 		listMessagesCommand.execute();
 	});
 
-	const addMessageDisposable = vscode.commands.registerCommand('azure-queue-storage-explorer.addMessage', (context: any) => {
-		console.log('Extension: Received context:', context);
+	const selectQueueDisposable = vscode.commands.registerCommand('azure-queue-storage-explorer.selectQueue', (queueName: string) => {
+		selectedQueueName = queueName;
+		console.log('Extension: Selected queue:', selectedQueueName);
+	});
+
+	const addMessageDisposable = vscode.commands.registerCommand('azure-queue-storage-explorer.addMessage', () => {
+		console.log('Extension: Using selectedQueueName:', selectedQueueName);
+		addMessageCommand.execute(selectedQueueName);
+	});
+
+	const addMessageToQueueDisposable = vscode.commands.registerCommand('azure-queue-storage-explorer.addMessageToQueue', (context: any) => {
+		console.log('Extension: Received context for addMessageToQueue:', context);
 		
 		let queueName: string | undefined;
 		
@@ -55,7 +68,7 @@ export function activate(context: vscode.ExtensionContext) {
 			queueName = context;
 		}
 		
-		console.log('Extension: Extracted queueName:', queueName, 'Type:', typeof queueName);
+		console.log('Extension: Extracted queueName for addMessageToQueue:', queueName, 'Type:', typeof queueName);
 		addMessageCommand.execute(queueName);
 	});
 
@@ -76,7 +89,7 @@ export function activate(context: vscode.ExtensionContext) {
 		treeDataProvider: queueTreeDataProvider
 	});
 
-	context.subscriptions.push(createQueueDisposable, listMessagesDisposable, addMessageDisposable, clearMessagesDisposable, removeQueueDisposable, refreshQueuesDisposable);
+	context.subscriptions.push(createQueueDisposable, listMessagesDisposable, selectQueueDisposable, addMessageDisposable, addMessageToQueueDisposable, clearMessagesDisposable, removeQueueDisposable, refreshQueuesDisposable);
 }
 
 // This method is called when your extension is deactivated

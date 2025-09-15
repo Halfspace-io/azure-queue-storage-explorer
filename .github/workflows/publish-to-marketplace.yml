@@ -73,10 +73,10 @@ jobs:
         npm install -g @vscode/vsce
         
         # Package extension
-        vsce package --no-dependencies --out release-assets/
+        vsce package --no-dependencies
         
         # Upload to release
-        for file in release-assets/*.vsix; do
+        for file in *.vsix; do
           if [ -f "$file" ]; then
             gh release upload "${{ steps.release-tag.outputs.release-tag }}" "$file"
             echo "📦 Uploaded $file to release"

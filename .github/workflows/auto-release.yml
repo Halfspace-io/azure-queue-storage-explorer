@@ -116,10 +116,10 @@ jobs:
         npm install -g @vscode/vsce
         
         # Package extension
-        vsce package --no-dependencies --out release-assets/
+        vsce package --no-dependencies
         
         # Upload all .vsix files
-        for file in release-assets/*.vsix; do
+        for file in *.vsix; do
           if [ -f "$file" ]; then
             gh release upload "v$CURRENT_VERSION" "$file"
           fi

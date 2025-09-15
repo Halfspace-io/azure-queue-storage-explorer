@@ -22,6 +22,8 @@ jobs:
       
     - name: Get release tag
       id: release-tag
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         if [ "${{ github.event_name }}" = "release" ]; then
           RELEASE_TAG="${{ github.event.release.tag_name }}"
@@ -30,6 +32,10 @@ jobs:
         fi
         echo "release-tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
         echo "Publishing release: $RELEASE_TAG"
+        
+        # Debug: List all releases to see what's available
+        echo "Available releases:"
+        gh release list --limit 5
         
         
     - name: Publish to VS Code Marketplace

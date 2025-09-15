@@ -20,7 +20,8 @@
     "commands": [
       {
         "command": "azure-queue-storage-explorer.createQueue",
-        "title": "Queue: Create Queue"
+        "title": "Queue: Create Queue",
+        "icon": "$(add)"
       },
       {
         "command": "azure-queue-storage-explorer.listMessages",
@@ -39,6 +40,16 @@
         "command": "azure-queue-storage-explorer.addMessageToQueue",
         "title": "Add Message",
         "icon": "$(add)"
+      },
+      {
+        "command": "azure-queue-storage-explorer.clearMessagesToQueue",
+        "title": "Clear Messages",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "azure-queue-storage-explorer.removeQueueToQueue",
+        "title": "Remove Queue",
+        "icon": "$(trash)"
       },
       {
         "command": "azure-queue-storage-explorer.clearMessages",
@@ -66,6 +77,11 @@
     "menus": {
       "view/title": [
         {
+          "command": "azure-queue-storage-explorer.createQueue",
+          "when": "view == azure-queue-storage-explorer.queues",
+          "group": "navigation"
+        },
+        {
           "command": "azure-queue-storage-explorer.refreshQueues",
           "when": "view == azure-queue-storage-explorer.queues",
           "group": "navigation"
@@ -74,6 +90,16 @@
       "view/item/context": [
         {
           "command": "azure-queue-storage-explorer.addMessageToQueue",
+          "when": "view == azure-queue-storage-explorer.queues && viewItem == queue",
+          "group": "inline"
+        },
+        {
+          "command": "azure-queue-storage-explorer.clearMessagesToQueue",
+          "when": "view == azure-queue-storage-explorer.queues && viewItem == queue",
+          "group": "inline"
+        },
+        {
+          "command": "azure-queue-storage-explorer.removeQueueToQueue",
           "when": "view == azure-queue-storage-explorer.queues && viewItem == queue",
           "group": "inline"
         }

@@ -72,6 +72,48 @@ export function activate(context: vscode.ExtensionContext) {
 		addMessageCommand.execute(queueName);
 	});
 
+	const clearMessagesToQueueDisposable = vscode.commands.registerCommand('azure-queue-storage-explorer.clearMessagesToQueue', (context: any) => {
+		console.log('Extension: Received context for clearMessagesToQueue:', context);
+		
+		let queueName: string | undefined;
+		
+		// Try to extract queue name from the tree item context
+		if (context && context.queueName) {
+			queueName = context.queueName;
+		} else if (context && context.resourceUri) {
+			const uri = context.resourceUri;
+			if (uri.scheme === 'queue') {
+				queueName = uri.path.substring(1); // Remove leading slash
+			}
+		} else if (context && typeof context === 'string') {
+			queueName = context;
+		}
+		
+		console.log('Extension: Extracted queueName for clearMessagesToQueue:', queueName, 'Type:', typeof queueName);
+		clearMessagesCommand.execute(queueName);
+	});
+
+	const removeQueueToQueueDisposable = vscode.commands.registerCommand('azure-queue-storage-explorer.removeQueueToQueue', (context: any) => {
+		console.log('Extension: Received context for removeQueueToQueue:', context);
+		
+		let queueName: string | undefined;
+		
+		// Try to extract queue name from the tree item context
+		if (context && context.queueName) {
+			queueName = context.queueName;
+		} else if (context && context.resourceUri) {
+			const uri = context.resourceUri;
+			if (uri.scheme === 'queue') {
+				queueName = uri.path.substring(1); // Remove leading slash
+			}
+		} else if (context && typeof context === 'string') {
+			queueName = context;
+		}
+		
+		console.log('Extension: Extracted queueName for removeQueueToQueue:', queueName, 'Type:', typeof queueName);
+		removeQueueCommand.execute(queueName);
+	});
+
 	const clearMessagesDisposable = vscode.commands.registerCommand('azure-queue-storage-explorer.clearMessages', () => {
 		clearMessagesCommand.execute();
 	});
@@ -89,7 +131,7 @@ export function activate(context: vscode.ExtensionContext) {
 		treeDataProvider: queueTreeDataProvider
 	});
 
-	context.subscriptions.push(createQueueDisposable, listMessagesDisposable, selectQueueDisposable, addMessageDisposable, addMessageToQueueDisposable, clearMessagesDisposable, removeQueueDisposable, refreshQueuesDisposable);
+	context.subscriptions.push(createQueueDisposable, listMessagesDisposable, selectQueueDisposable, addMessageDisposable, addMessageToQueueDisposable, clearMessagesToQueueDisposable, removeQueueToQueueDisposable, clearMessagesDisposable, removeQueueDisposable, refreshQueuesDisposable);
 }
 
 // This method is called when your extension is deactivated

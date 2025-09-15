@@ -11,22 +11,31 @@ export class ClearMessagesCommand {
         this.treeDataProvider = treeDataProvider;
     }
 
-    async execute(): Promise<void> {
+    async execute(queueName?: string): Promise<void> {
         try {
-            // First, let user select a queue
-            const queues = await this.queueProvider.getQueues();
-            
-            if (queues.length === 0) {
-                vscode.window.showInformationMessage('No queues found. Create a queue first.');
-                return;
-            }
+            let selectedQueue: string;
 
-            const selectedQueue = await vscode.window.showQuickPick(queues, {
-                placeHolder: 'Select a queue to clear messages from'
-            });
+            if (queueName) {
+                // Use the provided queue name
+                selectedQueue = queueName;
+            } else {
+                // First, let user select a queue
+                const queues = await this.queueProvider.getQueues();
+                
+                if (queues.length === 0) {
+                    vscode.window.showInformationMessage('No queues found. Create a queue first.');
+                    return;
+                }
 
-            if (!selectedQueue) {
-                return;
+                const pickedQueue = await vscode.window.showQuickPick(queues, {
+                    placeHolder: 'Select a queue to clear messages from'
+                });
+
+                if (!pickedQueue) {
+                    return;
+                }
+
+                selectedQueue = pickedQueue;
             }
 
             // Set the selected queue

@@ -1,17 +1,31 @@
 import assert from 'assert';
 import { QueueProvider } from '../queueProvider';
+import { AzuriteHealthCheck } from '../azuriteHealthCheck';
 
 suite('QueueProvider Tests', () => {
     let queueProvider: QueueProvider;
     const testQueueName = 'test-queue-' + Date.now(); // Unique queue name for each test run
+    let azuriteRunning = false;
 
     suiteSetup(async () => {
+        // Check if Azurite is running before running tests
+        azuriteRunning = await AzuriteHealthCheck.isAzuriteRunning();
+        
+        if (!azuriteRunning) {
+            console.log('Skipping QueueProvider tests - Azurite is not running');
+            return;
+        }
+
         queueProvider = new QueueProvider();
         // Ensure the test queue exists
         await queueProvider.setQueue(testQueueName);
     });
 
     suiteTeardown(async () => {
+        if (!azuriteRunning) {
+            return;
+        }
+
         // Clean up: delete the test queue
         try {
             const queueClient = (queueProvider as any).queueServiceClient.getQueueClient(testQueueName);
@@ -22,7 +36,18 @@ suite('QueueProvider Tests', () => {
         }
     });
 
+    // Helper function to skip tests when Azurite is not running
+    function skipIfAzuriteNotRunning() {
+        if (!azuriteRunning) {
+            console.log('Skipping test - Azurite is not running');
+            return true;
+        }
+        return false;
+    }
+
     test('should create queue if it does not exist', async () => {
+        if (skipIfAzuriteNotRunning()) {return;}
+
         const newQueueName = 'new-test-queue-' + Date.now();
         await queueProvider.setQueue(newQueueName);
         
@@ -36,6 +61,8 @@ suite('QueueProvider Tests', () => {
     });
 
     test('should list messages from empty queue', async () => {
+        if (skipIfAzuriteNotRunning()) {return;}
+
         const emptyQueueName = 'empty-test-queue-' + Date.now();
         await queueProvider.setQueue(emptyQueueName);
         
@@ -49,6 +76,8 @@ suite('QueueProvider Tests', () => {
     });
 
     test('should add and list messages', async () => {
+        if (skipIfAzuriteNotRunning()) {return;}
+
         const messageQueueName = 'message-test-queue-' + Date.now();
         await queueProvider.setQueue(messageQueueName);
         
@@ -75,6 +104,8 @@ suite('QueueProvider Tests', () => {
     });
 
     test('should add multiple messages and list them', async () => {
+        if (skipIfAzuriteNotRunning()) {return;}
+
         const multiQueueName = 'multi-test-queue-' + Date.now();
         await queueProvider.setQueue(multiQueueName);
         
@@ -107,6 +138,8 @@ suite('QueueProvider Tests', () => {
     });
 
     test('should not dequeue messages when listing (peek only)', async () => {
+        if (skipIfAzuriteNotRunning()) {return;}
+
         const peekQueueName = 'peek-test-queue-' + Date.now();
         await queueProvider.setQueue(peekQueueName);
         
@@ -141,6 +174,8 @@ suite('QueueProvider Tests', () => {
     });
 
     test('should handle empty message text', async () => {
+        if (skipIfAzuriteNotRunning()) {return;}
+
         try {
             await queueProvider.addMessage('');
             assert.fail('Should throw error for empty message');
@@ -150,6 +185,8 @@ suite('QueueProvider Tests', () => {
     });
 
     test('should handle very long message', async () => {
+        if (skipIfAzuriteNotRunning()) {return;}
+
         const longQueueName = 'long-test-queue-' + Date.now();
         await queueProvider.setQueue(longQueueName);
         
@@ -167,6 +204,8 @@ suite('QueueProvider Tests', () => {
     });
 
     test('should get list of queues', async () => {
+        if (skipIfAzuriteNotRunning()) {return;}
+
         const queues = await queueProvider.getQueues();
         
         assert(Array.isArray(queues), 'Should return an array of queue names');
@@ -174,6 +213,8 @@ suite('QueueProvider Tests', () => {
     });
 
     test('should throw error when no queue is selected', async () => {
+        if (skipIfAzuriteNotRunning()) {return;}
+
         const newProvider = new QueueProvider();
         
         try {
@@ -186,6 +227,8 @@ suite('QueueProvider Tests', () => {
     });
 
     test('should throw error when adding message without queue selected', async () => {
+        if (skipIfAzuriteNotRunning()) {return;}
+
         const newProvider = new QueueProvider();
         
         try {

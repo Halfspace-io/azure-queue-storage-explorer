@@ -1,4 +1,5 @@
 import { QueueServiceClient, QueueClient, StorageSharedKeyCredential } from '@azure/storage-queue';
+import { AzuriteHealthCheck } from './azuriteHealthCheck';
 
 export class QueueProvider {
     private queueServiceClient: QueueServiceClient;
@@ -20,14 +21,16 @@ export class QueueProvider {
     }
 
     async setQueue(queueName: string): Promise<void> {
-        this.queueClient = this.queueServiceClient.getQueueClient(queueName);
-        
-        // Ensure the queue exists
-        try {
-            await this.queueClient.createIfNotExists();
-        } catch (error) {
-            throw new Error(`Failed to create queue: ${error}`);
-        }
+        return AzuriteHealthCheck.withHealthCheck(async () => {
+            this.queueClient = this.queueServiceClient.getQueueClient(queueName);
+            
+            // Ensure the queue exists
+            try {
+                await this.queueClient.createIfNotExists();
+            } catch (error) {
+                throw new Error(`Failed to create queue: ${error}`);
+            }
+        }, 'Azurite is not running');
     }
 
     async listMessages(): Promise<any[]> {
@@ -35,18 +38,20 @@ export class QueueProvider {
             throw new Error('No queue selected. Please select a queue first.');
         }
 
-        try {
-            const response = await this.queueClient.peekMessages({ numberOfMessages: 32 });
-            return response.peekedMessageItems.map(item => ({
-                messageId: item.messageId,
-                messageText: item.messageText,
-                insertedOn: item.insertedOn,
-                expiresOn: item.expiresOn,
-                dequeueCount: item.dequeueCount
-            }));
-        } catch (error) {
-            throw new Error(`Failed to list messages: ${error}`);
-        }
+        return AzuriteHealthCheck.withHealthCheck(async () => {
+            try {
+                const response = await this.queueClient!.peekMessages({ numberOfMessages: 32 });
+                return response.peekedMessageItems.map(item => ({
+                    messageId: item.messageId,
+                    messageText: item.messageText,
+                    insertedOn: item.insertedOn,
+                    expiresOn: item.expiresOn,
+                    dequeueCount: item.dequeueCount
+                }));
+            } catch (error) {
+                throw new Error(`Failed to list messages: ${error}`);
+            }
+        }, 'Azurite is not running');
     }
 
     async addMessage(messageText: string): Promise<void> {
@@ -54,22 +59,26 @@ export class QueueProvider {
             throw new Error('No queue selected. Please select a queue first.');
         }
 
-        try {
-            await this.queueClient.sendMessage(messageText);
-        } catch (error) {
-            throw new Error(`Failed to add message: ${error}`);
-        }
+        return AzuriteHealthCheck.withHealthCheck(async () => {
+            try {
+                await this.queueClient!.sendMessage(messageText);
+            } catch (error) {
+                throw new Error(`Failed to add message: ${error}`);
+            }
+        }, 'Azurite is not running');
     }
 
     async getQueues(): Promise<string[]> {
-        try {
-            const queues = [];
-            for await (const queue of this.queueServiceClient.listQueues()) {
-                queues.push(queue.name);
+        return AzuriteHealthCheck.withHealthCheck(async () => {
+            try {
+                const queues = [];
+                for await (const queue of this.queueServiceClient.listQueues()) {
+                    queues.push(queue.name);
+                }
+                return queues;
+            } catch (error) {
+                throw new Error(`Failed to list queues: ${error}`);
             }
-            return queues;
-        } catch (error) {
-            throw new Error(`Failed to list queues: ${error}`);
-        }
+        }, 'Azurite is not running');
     }
 }

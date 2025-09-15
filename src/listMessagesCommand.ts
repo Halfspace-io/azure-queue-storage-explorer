@@ -47,6 +47,11 @@ export class ListMessagesCommand {
             await vscode.window.showTextDocument(doc);
 
         } catch (error) {
+            // Check if it's an Azurite health check error
+            if (error instanceof Error && error.message === 'Azurite is not running') {
+                // Health check already showed the error message, no need to show another one
+                return;
+            }
             vscode.window.showErrorMessage(`Error listing messages: ${error}`);
         }
     }

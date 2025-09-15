@@ -82,6 +82,17 @@ export class QueueProvider {
         }, 'Azurite is not running');
     }
 
+    async deleteQueue(queueName: string): Promise<void> {
+        return AzuriteHealthCheck.withHealthCheck(async () => {
+            try {
+                const queueClient = this.queueServiceClient.getQueueClient(queueName);
+                await queueClient.delete();
+            } catch (error) {
+                throw new Error(`Failed to delete queue: ${error}`);
+            }
+        }, 'Azurite is not running');
+    }
+
     async getQueues(): Promise<string[]> {
         return AzuriteHealthCheck.withHealthCheck(async () => {
             try {

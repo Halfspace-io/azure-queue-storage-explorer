@@ -1,0 +1,54 @@
+import * as vscode from 'vscode';
+import { QueueProvider } from './queueProvider';
+
+export class RemoveQueueCommand {
+    private queueProvider: QueueProvider;
+
+    constructor(queueProvider: QueueProvider) {
+        this.queueProvider = queueProvider;
+    }
+
+    async execute(): Promise<void> {
+        try {
+            // First, let user select a queue
+            const queues = await this.queueProvider.getQueues();
+            
+            if (queues.length === 0) {
+                vscode.window.showInformationMessage('No queues found. Create a queue first.');
+                return;
+            }
+
+            const selectedQueue = await vscode.window.showQuickPick(queues, {
+                placeHolder: 'Select a queue to remove'
+            });
+
+            if (!selectedQueue) {
+                return;
+            }
+
+            // Show confirmation dialog
+            const confirmDelete = await vscode.window.showWarningMessage(
+                `Are you sure you want to delete queue "${selectedQueue}"? This action cannot be undone and will remove the queue and all its messages.`,
+                { modal: true },
+                'Yes, Delete Queue'
+            );
+
+            if (confirmDelete !== 'Yes, Delete Queue') {
+                return;
+            }
+
+            // Delete the queue
+            await this.queueProvider.deleteQueue(selectedQueue);
+            
+            vscode.window.showInformationMessage(`Queue deleted: ${selectedQueue}`);
+
+        } catch (error) {
+            // Check if it's an Azurite health check error
+            if (error instanceof Error && error.message === 'Azurite is not running') {
+                // Health check already showed the error message, no need to show another one
+                return;
+            }
+            vscode.window.showErrorMessage(`Error deleting queue: ${error}`);
+        }
+    }
+}

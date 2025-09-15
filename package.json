@@ -33,6 +33,10 @@
       {
         "command": "azure-queue-storage-explorer.clearMessages",
         "title": "Queue: Clear Messages"
+      },
+      {
+        "command": "azure-queue-storage-explorer.removeQueue",
+        "title": "Queue: Remove Queue"
       }
     ]
   },

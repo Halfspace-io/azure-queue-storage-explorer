@@ -19,23 +19,6 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        
-    - name: Install pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: latest
-        
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'pnpm'
-        
-    - name: Install dependencies
-      run: pnpm install
-      
-    - name: Compile TypeScript
-      run: pnpm run compile
       
     - name: Get release tag
       id: release-tag
@@ -48,40 +31,6 @@ jobs:
         echo "release-tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
         echo "Publishing release: $RELEASE_TAG"
         
-    - name: Check if already published
-      id: check-published
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        RELEASE_TAG="${{ steps.release-tag.outputs.release-tag }}"
-        
-        # Check if this version is already published
-        if gh release view "$RELEASE_TAG" --json assets --jq '.assets[] | select(.name | contains(".vsix")) | .name' | grep -q ".vsix"; then
-          echo "already-published=true" >> $GITHUB_OUTPUT
-          echo "✅ Release $RELEASE_TAG already has .vsix assets"
-        else
-          echo "already-published=false" >> $GITHUB_OUTPUT
-          echo "📦 Release $RELEASE_TAG needs to be packaged"
-        fi
-        
-    - name: Package extension
-      if: steps.check-published.outputs.already-published == 'false'
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        # Install vsce
-        npm install -g @vscode/vsce
-        
-        # Package extension
-        vsce package --no-dependencies
-        
-        # Upload to release
-        for file in *.vsix; do
-          if [ -f "$file" ]; then
-            gh release upload "${{ steps.release-tag.outputs.release-tag }}" "$file"
-            echo "📦 Uploaded $file to release"
-          fi
-        done
         
     - name: Publish to VS Code Marketplace
       env:
@@ -94,28 +43,10 @@ jobs:
         # Get release tag
         RELEASE_TAG="${{ steps.release-tag.outputs.release-tag }}"
         
-        # Check if release exists
-        echo "🔍 Checking if release $RELEASE_TAG exists..."
-        if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-          echo "❌ Release $RELEASE_TAG not found. Please ensure the auto-release workflow has completed successfully."
-          exit 1
-        fi
-        
         # Find the .vsix file in release assets
-        echo "🔍 Looking for .vsix file in release assets..."
         VSIX_FILE=$(gh release view "$RELEASE_TAG" --json assets --jq '.assets[] | select(.name | contains(".vsix")) | .name' | head -n1)
         
-        if [ -z "$VSIX_FILE" ]; then
-          echo "❌ No .vsix file found in release $RELEASE_TAG"
-          echo "Available assets:"
-          gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name'
-          exit 1
-        fi
-        
-        echo "✅ Found .vsix file: $VSIX_FILE"
-        
         # Download the .vsix file
-        echo "📥 Downloading $VSIX_FILE from release..."
         gh release download "$RELEASE_TAG" --pattern "$VSIX_FILE"
         
         # Publish to marketplace

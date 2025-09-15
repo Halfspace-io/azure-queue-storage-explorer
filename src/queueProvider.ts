@@ -68,6 +68,20 @@ export class QueueProvider {
         }, 'Azurite is not running');
     }
 
+    async clearMessages(): Promise<void> {
+        if (!this.queueClient) {
+            throw new Error('No queue selected. Please select a queue first.');
+        }
+
+        return AzuriteHealthCheck.withHealthCheck(async () => {
+            try {
+                await this.queueClient!.clearMessages();
+            } catch (error) {
+                throw new Error(`Failed to clear messages: ${error}`);
+            }
+        }, 'Azurite is not running');
+    }
+
     async getQueues(): Promise<string[]> {
         return AzuriteHealthCheck.withHealthCheck(async () => {
             try {

@@ -29,6 +29,10 @@
       {
         "command": "azure-queue-storage-explorer.addMessage",
         "title": "Queue: Add Message"
+      },
+      {
+        "command": "azure-queue-storage-explorer.clearMessages",
+        "title": "Queue: Clear Messages"
       }
     ]
   },

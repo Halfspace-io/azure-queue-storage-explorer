@@ -5,6 +5,7 @@ import { QueueProvider } from './queueProvider';
 import { CreateQueueCommand } from './createQueueCommand';
 import { ListMessagesCommand } from './listMessagesCommand';
 import { AddMessageCommand } from './addMessageCommand';
+import { ClearMessagesCommand } from './clearMessagesCommand';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -19,6 +20,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const createQueueCommand = new CreateQueueCommand(queueProvider);
 	const listMessagesCommand = new ListMessagesCommand(queueProvider);
 	const addMessageCommand = new AddMessageCommand(queueProvider);
+	const clearMessagesCommand = new ClearMessagesCommand(queueProvider);
 
 	// Register commands
 	const createQueueDisposable = vscode.commands.registerCommand('azure-queue-storage-explorer.createQueue', () => {
@@ -33,7 +35,11 @@ export function activate(context: vscode.ExtensionContext) {
 		addMessageCommand.execute();
 	});
 
-	context.subscriptions.push(createQueueDisposable, listMessagesDisposable, addMessageDisposable);
+	const clearMessagesDisposable = vscode.commands.registerCommand('azure-queue-storage-explorer.clearMessages', () => {
+		clearMessagesCommand.execute();
+	});
+
+	context.subscriptions.push(createQueueDisposable, listMessagesDisposable, addMessageDisposable, clearMessagesDisposable);
 }
 
 // This method is called when your extension is deactivated

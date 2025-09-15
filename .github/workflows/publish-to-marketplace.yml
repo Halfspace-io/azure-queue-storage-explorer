@@ -33,9 +33,12 @@ jobs:
         echo "release-tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
         echo "Publishing release: $RELEASE_TAG"
         
-        # Debug: List all releases to see what's available
+        # Debug: Check token permissions and list releases
+        echo "Checking GitHub CLI authentication..."
+        gh auth status
+        
         echo "Available releases:"
-        gh release list --limit 5
+        gh release list --limit 5 || echo "Failed to list releases"
         
         
     - name: Publish to VS Code Marketplace

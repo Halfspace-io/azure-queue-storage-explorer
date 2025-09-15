@@ -60,6 +60,15 @@
         "title": "Queue: Remove Queue"
       },
       {
+        "command": "azure-queue-storage-explorer.removeMessage",
+        "title": "Queue: Remove Message"
+      },
+      {
+        "command": "azure-queue-storage-explorer.removeMessageToMessage",
+        "title": "Remove Message",
+        "icon": "$(trash)"
+      },
+      {
         "command": "azure-queue-storage-explorer.refreshQueues",
         "title": "Refresh",
         "icon": "$(refresh)"
@@ -101,6 +110,11 @@
         {
           "command": "azure-queue-storage-explorer.removeQueueToQueue",
           "when": "view == azure-queue-storage-explorer.queues && viewItem == queue",
+          "group": "inline"
+        },
+        {
+          "command": "azure-queue-storage-explorer.removeMessageToMessage",
+          "when": "view == azure-queue-storage-explorer.queues && viewItem == message",
           "group": "inline"
         }
       ]

@@ -27,6 +27,9 @@ export class QueueTreeItem extends vscode.TreeItem {
             this.contextValue = 'message';
             this.iconPath = new vscode.ThemeIcon('mail');
             this.tooltip = `Message ID: ${messageData.messageId}\nText: ${messageData.messageText}\nInserted: ${messageData.insertedOn}\nDequeue Count: ${messageData.dequeueCount}`;
+            // Store message data for the inline action to access
+            (this as any).messageData = messageData;
+            (this as any).queueName = queueName;
         }
     }
 }

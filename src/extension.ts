@@ -7,6 +7,7 @@ import { ListMessagesCommand } from './listMessagesCommand';
 import { AddMessageCommand } from './addMessageCommand';
 import { ClearMessagesCommand } from './clearMessagesCommand';
 import { RemoveQueueCommand } from './removeQueueCommand';
+import { RemoveMessageCommand } from './removeMessageCommand';
 import { QueueTreeDataProvider } from './queueTreeDataProvider';
 
 // Global variable to store the currently selected queue name
@@ -31,6 +32,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const addMessageCommand = new AddMessageCommand(queueProvider, queueTreeDataProvider);
 	const clearMessagesCommand = new ClearMessagesCommand(queueProvider, queueTreeDataProvider);
 	const removeQueueCommand = new RemoveQueueCommand(queueProvider, queueTreeDataProvider);
+	const removeMessageCommand = new RemoveMessageCommand(queueProvider, queueTreeDataProvider);
 
 	// Register commands
 	const createQueueDisposable = vscode.commands.registerCommand('azure-queue-storage-explorer.createQueue', () => {
@@ -122,6 +124,32 @@ export function activate(context: vscode.ExtensionContext) {
 		removeQueueCommand.execute();
 	});
 
+	const removeMessageDisposable = vscode.commands.registerCommand('azure-queue-storage-explorer.removeMessage', () => {
+		removeMessageCommand.execute();
+	});
+
+	const removeMessageToMessageDisposable = vscode.commands.registerCommand('azure-queue-storage-explorer.removeMessageToMessage', (context: any) => {
+		console.log('Extension: Received context for removeMessageToMessage:', context);
+		
+		let messageId: string | undefined;
+		let popReceipt: string | undefined;
+		let queueName: string | undefined;
+		
+		// Try to extract message data from the tree item context
+		if (context && context.messageId && context.popReceipt && context.queueName) {
+			messageId = context.messageId;
+			popReceipt = context.popReceipt;
+			queueName = context.queueName;
+		} else if (context && context.messageData) {
+			messageId = context.messageData.messageId;
+			popReceipt = context.messageData.popReceipt;
+			queueName = context.queueName;
+		}
+		
+		console.log('Extension: Extracted message data:', { messageId, popReceipt, queueName });
+		removeMessageCommand.execute(messageId, popReceipt, queueName);
+	});
+
 	const refreshQueuesDisposable = vscode.commands.registerCommand('azure-queue-storage-explorer.refreshQueues', () => {
 		queueTreeDataProvider.refresh();
 	});
@@ -131,7 +159,7 @@ export function activate(context: vscode.ExtensionContext) {
 		treeDataProvider: queueTreeDataProvider
 	});
 
-	context.subscriptions.push(createQueueDisposable, listMessagesDisposable, selectQueueDisposable, addMessageDisposable, addMessageToQueueDisposable, clearMessagesToQueueDisposable, removeQueueToQueueDisposable, clearMessagesDisposable, removeQueueDisposable, refreshQueuesDisposable);
+	context.subscriptions.push(createQueueDisposable, listMessagesDisposable, selectQueueDisposable, addMessageDisposable, addMessageToQueueDisposable, clearMessagesToQueueDisposable, removeQueueToQueueDisposable, clearMessagesDisposable, removeQueueDisposable, removeMessageDisposable, removeMessageToMessageDisposable, refreshQueuesDisposable);
 }
 
 // This method is called when your extension is deactivated

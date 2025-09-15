@@ -40,13 +40,15 @@ export class QueueProvider {
 
         return AzuriteHealthCheck.withHealthCheck(async () => {
             try {
+                // Use peekMessages for display (no popReceipt needed for display)
                 const response = await this.queueClient!.peekMessages({ numberOfMessages: 32 });
                 return response.peekedMessageItems.map(item => ({
                     messageId: item.messageId,
                     messageText: item.messageText,
                     insertedOn: item.insertedOn,
                     expiresOn: item.expiresOn,
-                    dequeueCount: item.dequeueCount
+                    dequeueCount: item.dequeueCount,
+                    popReceipt: null // Will be fetched when needed for deletion
                 }));
             } catch (error) {
                 throw new Error(`Failed to list messages: ${error}`);
@@ -78,6 +80,52 @@ export class QueueProvider {
                 await this.queueClient!.clearMessages();
             } catch (error) {
                 throw new Error(`Failed to clear messages: ${error}`);
+            }
+        }, 'Azurite is not running');
+    }
+
+    async getMessagePopReceipt(messageId: string): Promise<string> {
+        if (!this.queueClient) {
+            throw new Error('No queue selected. Please select a queue first.');
+        }
+
+        return AzuriteHealthCheck.withHealthCheck(async () => {
+            try {
+                // Receive messages with a short visibility timeout to get popReceipt
+                const response = await this.queueClient!.receiveMessages({ 
+                    numberOfMessages: 32,
+                    visibilityTimeout: 1 // 1 second visibility timeout
+                });
+                
+                const message = response.receivedMessageItems.find(item => item.messageId === messageId);
+                if (!message) {
+                    throw new Error('Message not found');
+                }
+                
+                return message.popReceipt!;
+            } catch (error) {
+                throw new Error(`Failed to get message popReceipt: ${error}`);
+            }
+        }, 'Azurite is not running');
+    }
+
+    async removeMessage(messageId: string, popReceipt?: string): Promise<void> {
+        if (!this.queueClient) {
+            throw new Error('No queue selected. Please select a queue first.');
+        }
+
+        return AzuriteHealthCheck.withHealthCheck(async () => {
+            try {
+                let actualPopReceipt = popReceipt;
+                
+                // If no popReceipt provided, get it
+                if (!actualPopReceipt) {
+                    actualPopReceipt = await this.getMessagePopReceipt(messageId);
+                }
+                
+                await this.queueClient!.deleteMessage(messageId, actualPopReceipt);
+            } catch (error) {
+                throw new Error(`Failed to remove message: ${error}`);
             }
         }, 'Azurite is not running');
     }

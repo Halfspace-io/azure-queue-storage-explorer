@@ -91,17 +91,32 @@ jobs:
         # Install vsce
         npm install -g @vscode/vsce
         
-        # Package extension
-        echo "📦 Packaging extension..."
-        vsce package --no-dependencies
+        # Get release tag
+        RELEASE_TAG="${{ steps.release-tag.outputs.release-tag }}"
         
-        # Find the .vsix file
-        VSIX_FILE=$(ls *.vsix | head -n1)
-        
-        if [ -z "$VSIX_FILE" ]; then
-          echo "❌ No .vsix file found after packaging"
+        # Check if release exists
+        echo "🔍 Checking if release $RELEASE_TAG exists..."
+        if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+          echo "❌ Release $RELEASE_TAG not found. Please ensure the auto-release workflow has completed successfully."
           exit 1
         fi
+        
+        # Find the .vsix file in release assets
+        echo "🔍 Looking for .vsix file in release assets..."
+        VSIX_FILE=$(gh release view "$RELEASE_TAG" --json assets --jq '.assets[] | select(.name | contains(".vsix")) | .name' | head -n1)
+        
+        if [ -z "$VSIX_FILE" ]; then
+          echo "❌ No .vsix file found in release $RELEASE_TAG"
+          echo "Available assets:"
+          gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name'
+          exit 1
+        fi
+        
+        echo "✅ Found .vsix file: $VSIX_FILE"
+        
+        # Download the .vsix file
+        echo "📥 Downloading $VSIX_FILE from release..."
+        gh release download "$RELEASE_TAG" --pattern "$VSIX_FILE"
         
         # Publish to marketplace
         echo "🚀 Publishing $VSIX_FILE to VS Code Marketplace..."

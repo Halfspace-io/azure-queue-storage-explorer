@@ -38,8 +38,25 @@ export function activate(context: vscode.ExtensionContext) {
 		listMessagesCommand.execute();
 	});
 
-	const addMessageDisposable = vscode.commands.registerCommand('azure-queue-storage-explorer.addMessage', () => {
-		addMessageCommand.execute();
+	const addMessageDisposable = vscode.commands.registerCommand('azure-queue-storage-explorer.addMessage', (context: any) => {
+		console.log('Extension: Received context:', context);
+		
+		let queueName: string | undefined;
+		
+		// Try to extract queue name from the tree item context
+		if (context && context.queueName) {
+			queueName = context.queueName;
+		} else if (context && context.resourceUri) {
+			const uri = context.resourceUri;
+			if (uri.scheme === 'queue') {
+				queueName = uri.path.substring(1); // Remove leading slash
+			}
+		} else if (context && typeof context === 'string') {
+			queueName = context;
+		}
+		
+		console.log('Extension: Extracted queueName:', queueName, 'Type:', typeof queueName);
+		addMessageCommand.execute(queueName);
 	});
 
 	const clearMessagesDisposable = vscode.commands.registerCommand('azure-queue-storage-explorer.clearMessages', () => {

@@ -11,22 +11,39 @@ export class AddMessageCommand {
         this.treeDataProvider = treeDataProvider;
     }
 
-    async execute(): Promise<void> {
+    async execute(queueName?: string): Promise<void> {
         try {
-            // First, let user select a queue
-            const queues = await this.queueProvider.getQueues();
-            
-            if (queues.length === 0) {
-                vscode.window.showInformationMessage('No queues found. Create a queue first.');
-                return;
-            }
+            let selectedQueue: string;
 
-            const selectedQueue = await vscode.window.showQuickPick(queues, {
-                placeHolder: 'Select a queue to add message to'
-            });
+            if (queueName) {
+                // Use the provided queue name
+                console.log('AddMessageCommand: Received queueName:', queueName, 'Type:', typeof queueName);
+                
+                // Validate that queueName is a string
+                if (typeof queueName !== 'string') {
+                    vscode.window.showErrorMessage('Invalid queue name provided');
+                    return;
+                }
+                
+                selectedQueue = queueName;
+            } else {
+                // First, let user select a queue
+                const queues = await this.queueProvider.getQueues();
+                
+                if (queues.length === 0) {
+                    vscode.window.showInformationMessage('No queues found. Create a queue first.');
+                    return;
+                }
 
-            if (!selectedQueue) {
-                return;
+                const pickedQueue = await vscode.window.showQuickPick(queues, {
+                    placeHolder: 'Select a queue to add message to'
+                });
+
+                if (!pickedQueue) {
+                    return;
+                }
+
+                selectedQueue = pickedQueue;
             }
 
             // Set the selected queue
@@ -34,7 +51,7 @@ export class AddMessageCommand {
 
             // Get message text from user
             const messageText = await vscode.window.showInputBox({
-                prompt: 'Enter message text',
+                prompt: queueName ? `Enter message text for queue: ${queueName}` : 'Enter message text',
                 placeHolder: 'Type your message here...',
                 validateInput: (value) => {
                     if (!value || value.trim().length === 0) {

@@ -28,7 +28,8 @@
       },
       {
         "command": "azure-queue-storage-explorer.addMessage",
-        "title": "Queue: Add Message"
+        "title": "Queue: Add Message",
+        "icon": "$(add)"
       },
       {
         "command": "azure-queue-storage-explorer.clearMessages",
@@ -59,6 +60,13 @@
           "command": "azure-queue-storage-explorer.refreshQueues",
           "when": "view == azure-queue-storage-explorer.queues",
           "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "azure-queue-storage-explorer.addMessage",
+          "when": "view == azure-queue-storage-explorer.queues && viewItem == queue",
+          "group": "inline"
         }
       ]
     },

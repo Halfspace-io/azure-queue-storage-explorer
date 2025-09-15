@@ -52,10 +52,17 @@ jobs:
         # Get release tag
         RELEASE_TAG="${{ steps.release-tag.outputs.release-tag }}"
         
+        # Debug: Check release details and assets
+        echo "Checking release details for $RELEASE_TAG..."
+        gh release view "$RELEASE_TAG" --json assets
+        
         # Find the .vsix file in release assets
+        echo "Looking for .vsix file in assets..."
         VSIX_FILE=$(gh release view "$RELEASE_TAG" --json assets --jq '.assets[] | select(.name | contains(".vsix")) | .name' | head -n1)
+        echo "Found .vsix file: $VSIX_FILE"
         
         # Download the .vsix file
+        echo "Downloading $VSIX_FILE..."
         gh release download "$RELEASE_TAG" --pattern "$VSIX_FILE"
         
         # Publish to marketplace
@@ -73,13 +80,18 @@ jobs:
         # Add marketplace link to release notes
         MARKETPLACE_URL="https://marketplace.visualstudio.com/items?itemName=wojciechciok.azure-queue-storage-explorer"
         
+        echo "Getting current release body for $RELEASE_TAG..."
         # Get current release body
         CURRENT_BODY=$(gh release view "$RELEASE_TAG" --json body --jq '.body')
+        echo "Current body length: ${#CURRENT_BODY}"
         
         # Add marketplace link if not already present
         if ! echo "$CURRENT_BODY" | grep -q "marketplace.visualstudio.com"; then
+          echo "Adding marketplace link to release notes..."
           NEW_BODY="$CURRENT_BODY"$'\n\n'"## 📦 VS Code Marketplace"$'\n'"[Install from VS Code Marketplace]($MARKETPLACE_URL)"
           
           gh release edit "$RELEASE_TAG" --notes "$NEW_BODY"
           echo "✅ Updated release notes with marketplace link"
+        else
+          echo "✅ Marketplace link already present in release notes"
         fi

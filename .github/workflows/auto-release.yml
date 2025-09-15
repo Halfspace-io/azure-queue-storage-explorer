@@ -1,0 +1,121 @@
+name: Auto Release on Merge
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  auto-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: latest
+        
+    - name: Install dependencies
+      run: pnpm install
+      
+    - name: Compile TypeScript
+      run: pnpm run compile
+      
+    - name: Run tests
+      run: pnpm test
+      
+    - name: Get current version
+      id: current-version
+      run: |
+        CURRENT_VERSION=$(node -p "require('./package.json').version")
+        echo "current-version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+        echo "Current version: $CURRENT_VERSION"
+        
+    - name: Get latest release version
+      id: latest-release
+      run: |
+        LATEST_RELEASE=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' 2>/dev/null || echo "")
+        if [ -z "$LATEST_RELEASE" ]; then
+          LATEST_RELEASE="v0.0.0"
+        fi
+        echo "latest-release=$LATEST_RELEASE" >> $GITHUB_OUTPUT
+        echo "Latest release: $LATEST_RELEASE"
+        
+    - name: Validate version
+      id: validate-version
+      run: |
+        CURRENT_VERSION="${{ steps.current-version.outputs.current-version }}"
+        LATEST_RELEASE="${{ steps.latest-release.outputs.latest-release }}"
+        
+        # Remove 'v' prefix for comparison
+        CURRENT_NUM=${CURRENT_VERSION#v}
+        LATEST_NUM=${LATEST_RELEASE#v}
+        
+        echo "Comparing: $CURRENT_NUM vs $LATEST_NUM"
+        
+        # Use node to compare versions
+        COMPARISON=$(node -e "
+          const semver = require('semver');
+          const current = '$CURRENT_NUM';
+          const latest = '$LATEST_NUM';
+          const result = semver.compare(current, latest);
+          console.log(result);
+        ")
+        
+        if [ "$COMPARISON" -le 0 ]; then
+          echo "❌ Version $CURRENT_VERSION is not greater than $LATEST_RELEASE"
+          echo "Please bump the version in package.json before merging to main"
+          exit 1
+        fi
+        
+        echo "✅ Version $CURRENT_VERSION is valid"
+        echo "version-valid=true" >> $GITHUB_OUTPUT
+        
+    - name: Update changelog
+      run: |
+        CURRENT_VERSION="${{ steps.current-version.outputs.current-version }}"
+        DATE=$(date +'%Y-%m-%d')
+        
+        # Create changelog entry if it doesn't exist
+        if ! grep -q "## \[$CURRENT_VERSION\]" CHANGELOG.md; then
+          sed -i "1i\\\n## [$CURRENT_VERSION] - $DATE\n\n### Added\n- Auto-generated release\n\n" CHANGELOG.md
+        fi
+        
+    - name: Create release
+      run: |
+        CURRENT_VERSION="${{ steps.current-version.outputs.current-version }}"
+        CHANGELOG_ENTRY=$(awk "/## \[$CURRENT_VERSION\]/,/## \[/" CHANGELOG.md | head -n -1)
+        
+        gh release create "v$CURRENT_VERSION" \
+          --title "Release v$CURRENT_VERSION" \
+          --notes "$CHANGELOG_ENTRY" \
+          --generate-notes
+          
+    - name: Upload release assets
+      run: |
+        CURRENT_VERSION="${{ steps.current-version.outputs.current-version }}"
+        
+        # Install vsce
+        npm install -g @vscode/vsce
+        
+        # Package extension
+        vsce package --out release-assets/
+        
+        # Upload all .vsix files
+        for file in release-assets/*.vsix; do
+          if [ -f "$file" ]; then
+            gh release upload "v$CURRENT_VERSION" "$file"
+          fi
+        done

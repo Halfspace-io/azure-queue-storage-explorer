@@ -1,0 +1,131 @@
+name: Publish to VS Code Marketplace
+
+on:
+  release:
+    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag to publish (e.g., v1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: latest
+        
+    - name: Install dependencies
+      run: pnpm install
+      
+    - name: Compile TypeScript
+      run: pnpm run compile
+      
+    - name: Run tests
+      run: pnpm test
+      
+    - name: Get release tag
+      id: release-tag
+      run: |
+        if [ "${{ github.event_name }}" = "release" ]; then
+          RELEASE_TAG="${{ github.event.release.tag_name }}"
+        else
+          RELEASE_TAG="${{ github.event.inputs.release_tag }}"
+        fi
+        echo "release-tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
+        echo "Publishing release: $RELEASE_TAG"
+        
+    - name: Check if already published
+      id: check-published
+      run: |
+        RELEASE_TAG="${{ steps.release-tag.outputs.release-tag }}"
+        
+        # Check if this version is already published
+        if gh release view "$RELEASE_TAG" --json assets --jq '.assets[] | select(.name | contains(".vsix")) | .name' | grep -q ".vsix"; then
+          echo "already-published=true" >> $GITHUB_OUTPUT
+          echo "✅ Release $RELEASE_TAG already has .vsix assets"
+        else
+          echo "already-published=false" >> $GITHUB_OUTPUT
+          echo "📦 Release $RELEASE_TAG needs to be packaged"
+        fi
+        
+    - name: Package extension
+      if: steps.check-published.outputs.already-published == 'false'
+      run: |
+        # Install vsce
+        npm install -g @vscode/vsce
+        
+        # Package extension
+        vsce package --out release-assets/
+        
+        # Upload to release
+        for file in release-assets/*.vsix; do
+          if [ -f "$file" ]; then
+            gh release upload "${{ steps.release-tag.outputs.release-tag }}" "$file"
+            echo "📦 Uploaded $file to release"
+          fi
+        done
+        
+    - name: Publish to VS Code Marketplace
+      env:
+        VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      run: |
+        # Install vsce
+        npm install -g @vscode/vsce
+        
+        # Download the .vsix file from the release
+        RELEASE_TAG="${{ steps.release-tag.outputs.release-tag }}"
+        
+        # Find the .vsix file in release assets
+        VSIX_FILE=$(gh release view "$RELEASE_TAG" --json assets --jq '.assets[] | select(.name | contains(".vsix")) | .name' | head -n1)
+        
+        if [ -z "$VSIX_FILE" ]; then
+          echo "❌ No .vsix file found in release $RELEASE_TAG"
+          exit 1
+        fi
+        
+        # Download the .vsix file
+        gh release download "$RELEASE_TAG" --pattern "$VSIX_FILE"
+        
+        # Publish to marketplace
+        echo "🚀 Publishing $VSIX_FILE to VS Code Marketplace..."
+        vsce publish --packagePath "$VSIX_FILE"
+        
+        echo "✅ Successfully published $RELEASE_TAG to VS Code Marketplace!"
+        
+    - name: Update release notes
+      run: |
+        RELEASE_TAG="${{ steps.release-tag.outputs.release-tag }}"
+        
+        # Add marketplace link to release notes
+        MARKETPLACE_URL="https://marketplace.visualstudio.com/items?itemName=wojciechciok.azure-queue-storage-explorer"
+        
+        # Get current release body
+        CURRENT_BODY=$(gh release view "$RELEASE_TAG" --json body --jq '.body')
+        
+        # Add marketplace link if not already present
+        if ! echo "$CURRENT_BODY" | grep -q "marketplace.visualstudio.com"; then
+          NEW_BODY="$CURRENT_BODY
+
+## 📦 VS Code Marketplace
+[Install from VS Code Marketplace]($MARKETPLACE_URL)"
+          
+          gh release edit "$RELEASE_TAG" --notes "$NEW_BODY"
+          echo "✅ Updated release notes with marketplace link"
+        fi

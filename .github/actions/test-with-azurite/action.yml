@@ -1,5 +1,5 @@
 name: 'Test with Azurite'
-description: 'Run tests with and without Azurite running'
+description: 'Run tests with Azurite running (required)'
 inputs:
   node-version:
     description: 'Node.js version to use'
@@ -49,15 +49,6 @@ runs:
         sleep 3
         echo "✅ Virtual display ready"
         
-    - name: Run tests without Azurite
-      shell: bash
-      run: |
-        echo "🧪 Running tests without Azurite..."
-        export DISPLAY=:99
-        export ELECTRON_DISABLE_SANDBOX=1
-        pnpm test
-        echo "✅ Tests without Azurite completed successfully"
-        
     - name: Install Azurite
       shell: bash
       run: |
@@ -102,14 +93,14 @@ runs:
         echo "Blob service (port 10000): $(curl -s --connect-timeout 2 http://127.0.0.1:10000 > /dev/null 2>&1 && echo 'OK' || echo 'FAILED')"
         echo "Table service (port 10002): $(curl -s --connect-timeout 2 http://127.0.0.1:10002 > /dev/null 2>&1 && echo 'OK' || echo 'FAILED')"
         
-    - name: Run tests with Azurite
+    - name: Run tests
       shell: bash
       run: |
         echo "🧪 Running tests with Azurite..."
         export DISPLAY=:99
         export ELECTRON_DISABLE_SANDBOX=1
         pnpm test
-        echo "✅ Tests with Azurite completed successfully"
+        echo "✅ Tests completed successfully"
         
     - name: Stop Azurite and cleanup
       if: always()

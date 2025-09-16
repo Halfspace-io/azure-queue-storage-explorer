@@ -35,7 +35,7 @@ jobs:
     - name: Lint code
       run: pnpm run lint
       
-    - name: Run tests with and without Azurite
+    - name: Run tests with Azurite
       uses: ./.github/actions/test-with-azurite
       with:
         node-version: '20'
@@ -100,7 +100,7 @@ jobs:
           gh pr comment ${{ github.event.pull_request.number }} --body "✅ **CD Pipeline Passed**
           
           - ✅ Linting passed
-          - ✅ Tests passed (both with and without Azurite)
+          - ✅ Tests passed (with Azurite)
           - ✅ Version validation passed (${{ steps.current-version.outputs.current-version }} > ${{ steps.latest-release.outputs.latest-release }})
           
           This PR is ready for merge!"

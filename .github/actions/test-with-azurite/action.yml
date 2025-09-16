@@ -79,7 +79,7 @@ runs:
         # Wait for Azurite to start
         echo "⏳ Waiting for Azurite to start..."
         for i in {1..30}; do
-          if curl -s -f http://127.0.0.1:10001/devstoreaccount1 > /dev/null 2>&1; then
+          if curl -s -f -H "x-ms-version: 2020-04-08" "http://127.0.0.1:10001/devstoreaccount1?comp=list" > /dev/null 2>&1; then
             echo "✅ Azurite is running!"
             break
           fi
@@ -88,7 +88,7 @@ runs:
         done
         
         # Verify Azurite is running
-        if ! curl -s -f http://127.0.0.1:10001/devstoreaccount1 > /dev/null 2>&1; then
+        if ! curl -s -f -H "x-ms-version: 2020-04-08" "http://127.0.0.1:10001/devstoreaccount1?comp=list" > /dev/null 2>&1; then
           echo "❌ Azurite failed to start"
           echo "Debug log:"
           cat /tmp/azurite/debug.log 2>/dev/null || echo "No debug log available"
@@ -97,9 +97,9 @@ runs:
         
         # Additional verification
         echo "🔍 Verifying Azurite endpoints..."
-        curl -s http://127.0.0.1:10001/devstoreaccount1 || echo "Queue service check failed"
-        curl -s http://127.0.0.1:10000/devstoreaccount1 || echo "Blob service check failed"
-        curl -s http://127.0.0.1:10002/devstoreaccount1 || echo "Table service check failed"
+        curl -s -H "x-ms-version: 2020-04-08" "http://127.0.0.1:10001/devstoreaccount1?comp=list" || echo "Queue service check failed"
+        curl -s -H "x-ms-version: 2020-04-08" "http://127.0.0.1:10000/devstoreaccount1?comp=list" || echo "Blob service check failed"
+        curl -s -H "x-ms-version: 2020-04-08" "http://127.0.0.1:10002/devstoreaccount1?comp=list" || echo "Table service check failed"
         
     - name: Run tests with Azurite
       shell: bash

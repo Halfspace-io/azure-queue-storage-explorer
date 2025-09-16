@@ -36,10 +36,25 @@ runs:
       shell: bash
       run: pnpm run compile
       
+    - name: Setup virtual display for VS Code tests
+      shell: bash
+      run: |
+        echo "🖥️ Setting up virtual display for headless testing..."
+        sudo apt-get update
+        sudo apt-get install -y xvfb
+        export DISPLAY=:99
+        export ELECTRON_DISABLE_SANDBOX=1
+        Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        echo $! > /tmp/xvfb.pid
+        sleep 3
+        echo "✅ Virtual display ready"
+        
     - name: Run tests without Azurite
       shell: bash
       run: |
         echo "🧪 Running tests without Azurite..."
+        export DISPLAY=:99
+        export ELECTRON_DISABLE_SANDBOX=1
         pnpm test
         echo "✅ Tests without Azurite completed successfully"
         
@@ -90,10 +105,12 @@ runs:
       shell: bash
       run: |
         echo "🧪 Running tests with Azurite..."
+        export DISPLAY=:99
+        export ELECTRON_DISABLE_SANDBOX=1
         pnpm test
         echo "✅ Tests with Azurite completed successfully"
         
-    - name: Stop Azurite
+    - name: Stop Azurite and cleanup
       if: always()
       shell: bash
       run: |
@@ -103,3 +120,10 @@ runs:
           rm -f /tmp/azurite.pid
         fi
         echo "✅ Azurite stopped"
+        
+        echo "🛑 Stopping virtual display..."
+        if [ -f /tmp/xvfb.pid ]; then
+          kill $(cat /tmp/xvfb.pid) 2>/dev/null || true
+          rm -f /tmp/xvfb.pid
+        fi
+        echo "✅ Virtual display stopped"

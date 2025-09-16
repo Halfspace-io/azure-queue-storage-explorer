@@ -1,48 +1,45 @@
-# Exclude development files
-.vscode/**
-.vscode-test/**
-.vscode-test.mjs
-src/test/**
-**/*.test.ts
-**/*.test.js
-**/*.spec.ts
-**/*.spec.js
-
-# Exclude build artifacts
-out/test/**
-*.vsix
-
-# Exclude development dependencies
-node_modules/**
-.git/**
-.github/**
-.gitignore
-.eslintrc.*
+# Development files
+.vscode
+.vscode-test
+node_modules
+src/
 tsconfig.json
-jest.config.*
-vitest.config.*
-mocha.opts
+esbuild.js
+eslint.config.mjs
+pnpm-lock.yaml
 
-# Exclude documentation
-README.md
+# Build artifacts (keep only the bundled extension.js)
+out/*.js.map
+out/test/
+
+# Test files
+*.test.js
+*.test.js.map
+test/
+src/test/
+
+# Documentation and development files
+vsc-extension-quickstart.md
 CHANGELOG.md
-LICENSE
-*.md
+README.md
 
-# Exclude CI/CD files
-.github/**
-.gitlab-ci.yml
-azure-pipelines.yml
-.travis.yml
-.circleci/**
+# Package files
+*.vsix
+*.tgz
 
-# Exclude editor files
-.vscode/**
-.idea/**
+# Azurite local data (if any)
+__azurite_db_*
+__queuestorage__/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
 *.swp
 *.swo
 *~
 
-# Exclude OS files
-.DS_Store
-Thumbs.db
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

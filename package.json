@@ -2,16 +2,34 @@
   "name": "azure-queue-storage-explorer",
   "displayName": "Azure Queue Storage Explorer",
   "description": "A VS Code extension for managing Azure Queue Storage with local Azurite emulator. Create queues, add/remove messages, and manage your local development queues with an intuitive interface.",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "publisher": "halfspace",
   "icon": "images/icon.png",
+  "license": "SEE LICENSE IN LICENSE",
   "repository": {
     "type": "git",
-    "url": "https://github.com/halfspace/azure-queue-storage-explorer.git"
+    "url": "https://github.com/Halfspace-io/azure-queue-storage-explorer.git"
   },
   "engines": {
     "vscode": "^1.98.2"
   },
+  "badges": [
+    {
+      "url": "https://github.com/Halfspace-io/azure-queue-storage-explorer/actions/workflows/cd.yml/badge.svg",
+      "href": "https://github.com/Halfspace-io/azure-queue-storage-explorer/actions/workflows/cd.yml",
+      "description": "Build Status"
+    },
+    {
+      "url": "https://img.shields.io/github/v/release/Halfspace-io/azure-queue-storage-explorer",
+      "href": "https://github.com/Halfspace-io/azure-queue-storage-explorer/releases",
+      "description": "Latest Release"
+    },
+    {
+      "url": "https://img.shields.io/github/license/Halfspace-io/azure-queue-storage-explorer",
+      "href": "https://github.com/Halfspace-io/azure-queue-storage-explorer/blob/main/LICENSE",
+      "description": "License"
+    }
+  ],
   "categories": [
     "Azure",
     "Other"

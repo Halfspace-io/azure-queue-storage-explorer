@@ -1,5 +1,9 @@
 # GitHub Actions for VS Code Extension
 
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/Halfspace-io/azure-queue-storage-explorer)](https://github.com/Halfspace-io/azure-queue-storage-explorer/releases)
+[![Build Status](https://github.com/Halfspace-io/azure-queue-storage-explorer/actions/workflows/cd.yml/badge.svg)](https://github.com/Halfspace-io/azure-queue-storage-explorer/actions)
+[![License](https://img.shields.io/github/license/Halfspace-io/azure-queue-storage-explorer)](LICENSE)
+
 This repository includes automated workflows for building, testing, and publishing the Azure Queue Storage Explorer VS Code extension.
 
 ## 🚀 Two-Stage Release Process

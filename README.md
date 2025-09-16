@@ -1,5 +1,8 @@
 # Azure Queue Storage Explorer
 
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/Halfspace-io/azure-queue-storage-explorer)](https://github.com/Halfspace-io/azure-queue-storage-explorer/releases)
+[![License](https://img.shields.io/github/license/Halfspace-io/azure-queue-storage-explorer)](LICENSE)
+
 A comprehensive VS Code extension for managing Azure Queue Storage with local Azurite emulator. Create, manage, and monitor your queues with an intuitive tree view interface.
 
 ## Features

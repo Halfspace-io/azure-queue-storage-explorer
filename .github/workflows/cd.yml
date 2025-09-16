@@ -32,16 +32,6 @@ jobs:
     - name: Install dependencies
       run: pnpm install
       
-    - name: Lint code
-      run: pnpm run lint
-      
-    - name: Run tests with Azurite
-      uses: ./.github/actions/test-with-azurite
-      with:
-        node-version: '20'
-        pnpm-version: 'latest'
-        azurite-version: 'latest'
-      
     - name: Get current version
       id: current-version
       run: |
@@ -91,6 +81,16 @@ jobs:
         echo "✅ Version $CURRENT_VERSION is valid"
         echo "version-valid=true" >> $GITHUB_OUTPUT
         
+    - name: Lint code
+      run: pnpm run lint
+      
+    - name: Run tests with Azurite
+      uses: ./.github/actions/test-with-azurite
+      with:
+        node-version: '20'
+        pnpm-version: 'latest'
+        azurite-version: 'latest'
+        
     - name: Comment on PR
       if: github.event_name == 'pull_request'
       env:
@@ -99,9 +99,9 @@ jobs:
         if [ "${{ steps.validate-version.outputs.version-valid }}" = "true" ]; then
           gh pr comment ${{ github.event.pull_request.number }} --body "✅ **CD Pipeline Passed**
           
+          - ✅ Version validation passed (${{ steps.current-version.outputs.current-version }} > ${{ steps.latest-release.outputs.latest-release }})
           - ✅ Linting passed
           - ✅ Tests passed (with Azurite)
-          - ✅ Version validation passed (${{ steps.current-version.outputs.current-version }} > ${{ steps.latest-release.outputs.latest-release }})
           
           This PR is ready for merge!"
         else

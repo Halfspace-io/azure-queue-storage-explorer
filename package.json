@@ -50,7 +50,7 @@
     "theme": "dark"
   },
   "preview": true,
-  "activationEvents": [],
+  "activationEvents": ["onStartupFinished"],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [

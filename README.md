@@ -61,6 +61,8 @@ All operations are also available through the Command Palette (`Ctrl+Shift+P`):
 - "Queue: Clear Messages"
 - "Queue: Remove Queue"
 - "Queue: Remove Message"
+- "Select Queue"
+- "Refresh"
 
 ## Configuration
 

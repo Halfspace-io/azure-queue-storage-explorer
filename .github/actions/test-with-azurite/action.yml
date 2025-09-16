@@ -1,0 +1,121 @@
+name: 'Test with Azurite'
+description: 'Run tests with Azurite running (required)'
+inputs:
+  node-version:
+    description: 'Node.js version to use'
+    required: false
+    default: '20'
+  pnpm-version:
+    description: 'pnpm version to use'
+    required: false
+    default: 'latest'
+  azurite-version:
+    description: 'Azurite version to use'
+    required: false
+    default: 'latest'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: ${{ inputs.pnpm-version }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: 'pnpm'
+        
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install
+      
+    - name: Compile TypeScript
+      shell: bash
+      run: pnpm run compile
+      
+    - name: Setup virtual display for VS Code tests
+      shell: bash
+      run: |
+        echo "🖥️ Setting up virtual display for headless testing..."
+        sudo apt-get update
+        sudo apt-get install -y xvfb
+        export DISPLAY=:99
+        export ELECTRON_DISABLE_SANDBOX=1
+        Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        echo $! > /tmp/xvfb.pid
+        sleep 3
+        echo "✅ Virtual display ready"
+        
+    - name: Install Azurite
+      shell: bash
+      run: |
+        echo "📦 Installing Azurite..."
+        pnpm add -g azurite@${{ inputs.azurite-version }}
+        
+    - name: Start Azurite
+      shell: bash
+      run: |
+        echo "🚀 Starting Azurite..."
+        
+        # Create directory for Azurite data
+        mkdir -p /tmp/azurite
+        
+        # Start Azurite in background
+        azurite --silent --location /tmp/azurite --debug /tmp/azurite/debug.log --loose &
+        echo $! > /tmp/azurite.pid
+        
+        # Wait for Azurite to start
+        echo "⏳ Waiting for Azurite to start..."
+        for i in {1..30}; do
+          # Check if the ports are responding (even with auth errors, it means Azurite is running)
+          if curl -s --connect-timeout 2 http://127.0.0.1:10001 > /dev/null 2>&1; then
+            echo "✅ Azurite is running!"
+            break
+          fi
+          echo "Waiting... ($i/30)"
+          sleep 2
+        done
+        
+        # Verify Azurite is running
+        if ! curl -s --connect-timeout 2 http://127.0.0.1:10001 > /dev/null 2>&1; then
+          echo "❌ Azurite failed to start"
+          echo "Debug log:"
+          cat /tmp/azurite/debug.log 2>/dev/null || echo "No debug log available"
+          exit 1
+        fi
+        
+        # Additional verification
+        echo "🔍 Verifying Azurite endpoints..."
+        echo "Queue service (port 10001): $(curl -s --connect-timeout 2 http://127.0.0.1:10001 > /dev/null 2>&1 && echo 'OK' || echo 'FAILED')"
+        echo "Blob service (port 10000): $(curl -s --connect-timeout 2 http://127.0.0.1:10000 > /dev/null 2>&1 && echo 'OK' || echo 'FAILED')"
+        echo "Table service (port 10002): $(curl -s --connect-timeout 2 http://127.0.0.1:10002 > /dev/null 2>&1 && echo 'OK' || echo 'FAILED')"
+        
+    - name: Run tests
+      shell: bash
+      run: |
+        echo "🧪 Running tests with Azurite..."
+        export DISPLAY=:99
+        export ELECTRON_DISABLE_SANDBOX=1
+        pnpm test
+        echo "✅ Tests completed successfully"
+        
+    - name: Stop Azurite and cleanup
+      if: always()
+      shell: bash
+      run: |
+        echo "🛑 Stopping Azurite..."
+        if [ -f /tmp/azurite.pid ]; then
+          kill $(cat /tmp/azurite.pid) 2>/dev/null || true
+          rm -f /tmp/azurite.pid
+        fi
+        echo "✅ Azurite stopped"
+        
+        echo "🛑 Stopping virtual display..."
+        if [ -f /tmp/xvfb.pid ]; then
+          kill $(cat /tmp/xvfb.pid) 2>/dev/null || true
+          rm -f /tmp/xvfb.pid
+        fi
+        echo "✅ Virtual display stopped"

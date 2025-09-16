@@ -90,7 +90,8 @@ jobs:
         # Install vsce
         pnpm add -g @vscode/vsce
         
-        # Package extension
+        # Package extension (this will use esbuild via pnpm run package)
+        pnpm run package
         vsce package --no-dependencies
         
         # Upload all .vsix files

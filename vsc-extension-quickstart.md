@@ -1,19 +1,23 @@
-# Welcome to your VS Code Extension
+# Azure Queue Storage Explorer - Development Guide
 
 ## What's in the folder
 
-* This folder contains all of the files necessary for your extension.
-* `package.json` - this is the manifest file in which you declare your extension and command.
-  * The sample plugin registers a command and defines its title and command name. With this information VS Code can show the command in the command palette. It doesn’t yet need to load the plugin.
-* `src/extension.ts` - this is the main file where you will provide the implementation of your command.
-  * The file exports one function, `activate`, which is called the very first time your extension is activated (in this case by executing the command). Inside the `activate` function we call `registerCommand`.
-  * We pass the function containing the implementation of the command as the second parameter to `registerCommand`.
+* This folder contains all of the files necessary for the Azure Queue Storage Explorer extension.
+* `package.json` - this is the manifest file in which the extension and its commands are declared.
+  * The extension registers multiple commands for queue management and defines their titles and command names.
+  * It also defines the tree view provider for displaying queues in the activity bar.
+* `src/extension.ts` - this is the main file where the extension is activated.
+  * The file exports the `activate` function, which is called when the extension is activated.
+  * It registers the tree data provider and various commands for queue operations.
+* `src/` - contains all the source code for the extension including commands, providers, and utilities.
 
 ## Get up and running straight away
 
 * Press `F5` to open a new window with your extension loaded.
-* Run your command from the command palette by pressing (`Ctrl+Shift+P` or `Cmd+Shift+P` on Mac) and typing `Hello World`.
-* Set breakpoints in your code inside `src/extension.ts` to debug your extension.
+* Make sure Azurite is running locally (see README.md for setup instructions).
+* Open the "Local Azure Queues" panel in the activity bar.
+* Try creating a queue and adding messages to test the functionality.
+* Set breakpoints in your code to debug the extension.
 * Find output from your extension in the debug console.
 
 ## Make changes
@@ -27,13 +31,15 @@
 
 ## Run tests
 
-* Install the [Extension Test Runner](https://marketplace.visualstudio.com/items?itemName=ms-vscode.extension-test-runner)
-* Run the "watch" task via the **Tasks: Run Task** command. Make sure this is running, or tests might not be discovered.
-* Open the Testing view from the activity bar and click the Run Test" button, or use the hotkey `Ctrl/Cmd + ; A`
-* See the output of the test result in the Test Results view.
-* Make changes to `src/test/extension.test.ts` or create new test files inside the `test` folder.
-  * The provided test runner will only consider files matching the name pattern `**.test.ts`.
-  * You can create folders inside the `test` folder to structure your tests any way you want.
+* The project uses Mocha for testing with comprehensive test coverage.
+* Tests run both with and without Azurite to ensure compatibility.
+* Run tests using: `pnpm test`
+* Tests are located in the `src/test/` directory.
+* The test suite includes:
+  - Azurite health check tests
+  - Queue provider tests
+  - Command tests for all operations
+  - Error handling and edge case tests
 
 ## Go further
 

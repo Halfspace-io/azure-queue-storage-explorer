@@ -54,7 +54,10 @@ suite('ListMessagesCommand Tests', () => {
     }
 
     test('should execute successfully with existing queue', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Mock the showQuickPick to return our test queue
         const originalShowQuickPick = vscode.window.showQuickPick;
@@ -93,7 +96,10 @@ suite('ListMessagesCommand Tests', () => {
     });
 
     test('should handle no queue selection gracefully', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Mock showQuickPick to return undefined (user cancelled)
         const originalShowQuickPick = vscode.window.showQuickPick;
@@ -113,7 +119,10 @@ suite('ListMessagesCommand Tests', () => {
     });
 
     test('should handle empty queue gracefully', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         const emptyQueueName = 'empty-test-queue-' + Date.now();
         
@@ -154,7 +163,10 @@ suite('ListMessagesCommand Tests', () => {
     });
 
     test('should not dequeue messages when listing (end-to-end test)', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         const peekTestQueueName = 'peek-command-test-queue-' + Date.now();
         
@@ -188,7 +200,10 @@ suite('ListMessagesCommand Tests', () => {
     });
 
     test('should handle errors gracefully', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Create a command with a mock queue provider that throws an error
         const mockQueueProvider = {

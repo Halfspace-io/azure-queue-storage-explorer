@@ -53,7 +53,10 @@ suite('RemoveQueueCommand Tests', () => {
     }
 
     test('should remove queue successfully', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Verify queue exists before deletion
         const queuesBefore = await queueProvider.getQueues();
@@ -103,7 +106,10 @@ suite('RemoveQueueCommand Tests', () => {
     });
 
     test('should handle no queue selection gracefully', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Mock showQuickPick to return undefined (user cancelled)
         const originalShowQuickPick = vscode.window.showQuickPick;
@@ -123,7 +129,10 @@ suite('RemoveQueueCommand Tests', () => {
     });
 
     test('should handle user cancellation of confirmation', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Create a new test queue for this test
         const testQueueForCancellation = 'test-cancellation-queue-' + Date.now();
@@ -161,7 +170,10 @@ suite('RemoveQueueCommand Tests', () => {
     });
 
     test('should handle errors gracefully', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Create a command with a mock queue provider that throws an error
         const mockQueueProvider = {
@@ -193,7 +205,10 @@ suite('RemoveQueueCommand Tests', () => {
     });
 
     test('should handle no queues available', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Create a command with a mock queue provider that returns no queues
         const mockQueueProvider = {
@@ -224,7 +239,10 @@ suite('RemoveQueueCommand Tests', () => {
     });
 
     test('should handle deletion of non-existent queue gracefully', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         const nonExistentQueue = 'non-existent-queue-' + Date.now();
 

@@ -54,7 +54,10 @@ suite('AddMessageCommand Tests', () => {
     }
 
     test('should add message successfully', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         const testMessage = 'Test message ' + Date.now();
         
@@ -103,7 +106,10 @@ suite('AddMessageCommand Tests', () => {
     });
 
     test('should handle no queue selection gracefully', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Mock showQuickPick to return undefined (user cancelled)
         const originalShowQuickPick = vscode.window.showQuickPick;
@@ -123,7 +129,10 @@ suite('AddMessageCommand Tests', () => {
     });
 
     test('should handle no message input gracefully', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Mock the showQuickPick to return our test queue
         const originalShowQuickPick = vscode.window.showQuickPick;
@@ -151,7 +160,10 @@ suite('AddMessageCommand Tests', () => {
     });
 
     test('should validate empty message text', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Mock the showQuickPick to return our test queue
         const originalShowQuickPick = vscode.window.showQuickPick;
@@ -181,7 +193,10 @@ suite('AddMessageCommand Tests', () => {
     });
 
     test('should validate message length', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Mock the showQuickPick to return our test queue
         const originalShowQuickPick = vscode.window.showQuickPick;
@@ -212,7 +227,10 @@ suite('AddMessageCommand Tests', () => {
     });
 
     test('should handle errors gracefully', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Create a command with a mock queue provider that throws an error
         const mockQueueProvider = {
@@ -244,7 +262,10 @@ suite('AddMessageCommand Tests', () => {
     });
 
     test('should handle no queues available', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Create a command with a mock queue provider that returns no queues
         const mockQueueProvider = {

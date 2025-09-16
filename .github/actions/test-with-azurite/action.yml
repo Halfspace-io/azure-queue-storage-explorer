@@ -1,0 +1,105 @@
+name: 'Test with Azurite'
+description: 'Run tests with and without Azurite running'
+inputs:
+  node-version:
+    description: 'Node.js version to use'
+    required: false
+    default: '20'
+  pnpm-version:
+    description: 'pnpm version to use'
+    required: false
+    default: 'latest'
+  azurite-version:
+    description: 'Azurite version to use'
+    required: false
+    default: 'latest'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: ${{ inputs.pnpm-version }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: 'pnpm'
+        
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install
+      
+    - name: Compile TypeScript
+      shell: bash
+      run: pnpm run compile
+      
+    - name: Run tests without Azurite
+      shell: bash
+      run: |
+        echo "🧪 Running tests without Azurite..."
+        pnpm test
+        echo "✅ Tests without Azurite completed successfully"
+        
+    - name: Install Azurite
+      shell: bash
+      run: |
+        echo "📦 Installing Azurite..."
+        pnpm add -g azurite@${{ inputs.azurite-version }}
+        
+    - name: Start Azurite
+      shell: bash
+      run: |
+        echo "🚀 Starting Azurite..."
+        
+        # Create directory for Azurite data
+        mkdir -p /tmp/azurite
+        
+        # Start Azurite in background
+        azurite --silent --location /tmp/azurite --debug /tmp/azurite/debug.log --loose &
+        echo $! > /tmp/azurite.pid
+        
+        # Wait for Azurite to start
+        echo "⏳ Waiting for Azurite to start..."
+        for i in {1..30}; do
+          if curl -s -f http://127.0.0.1:10001/devstoreaccount1 > /dev/null 2>&1; then
+            echo "✅ Azurite is running!"
+            break
+          fi
+          echo "Waiting... ($i/30)"
+          sleep 2
+        done
+        
+        # Verify Azurite is running
+        if ! curl -s -f http://127.0.0.1:10001/devstoreaccount1 > /dev/null 2>&1; then
+          echo "❌ Azurite failed to start"
+          echo "Debug log:"
+          cat /tmp/azurite/debug.log 2>/dev/null || echo "No debug log available"
+          exit 1
+        fi
+        
+        # Additional verification
+        echo "🔍 Verifying Azurite endpoints..."
+        curl -s http://127.0.0.1:10001/devstoreaccount1 || echo "Queue service check failed"
+        curl -s http://127.0.0.1:10000/devstoreaccount1 || echo "Blob service check failed"
+        curl -s http://127.0.0.1:10002/devstoreaccount1 || echo "Table service check failed"
+        
+    - name: Run tests with Azurite
+      shell: bash
+      run: |
+        echo "🧪 Running tests with Azurite..."
+        pnpm test
+        echo "✅ Tests with Azurite completed successfully"
+        
+    - name: Stop Azurite
+      if: always()
+      shell: bash
+      run: |
+        echo "🛑 Stopping Azurite..."
+        if [ -f /tmp/azurite.pid ]; then
+          kill $(cat /tmp/azurite.pid) 2>/dev/null || true
+          rm -f /tmp/azurite.pid
+        fi
+        echo "✅ Azurite stopped"

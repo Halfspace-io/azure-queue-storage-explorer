@@ -54,7 +54,10 @@ suite('ClearMessagesCommand Tests', () => {
     }
 
     test('should clear messages successfully', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // First add some test messages
         await queueProvider.addMessage('Test message 1');
@@ -109,7 +112,10 @@ suite('ClearMessagesCommand Tests', () => {
     });
 
     test('should handle no queue selection gracefully', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Mock showQuickPick to return undefined (user cancelled)
         const originalShowQuickPick = vscode.window.showQuickPick;
@@ -129,7 +135,10 @@ suite('ClearMessagesCommand Tests', () => {
     });
 
     test('should handle user cancellation of confirmation', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Add a test message first
         await queueProvider.addMessage('Test message for cancellation');
@@ -164,7 +173,10 @@ suite('ClearMessagesCommand Tests', () => {
     });
 
     test('should handle errors gracefully', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Create a command with a mock queue provider that throws an error
         const mockQueueProvider = {
@@ -196,7 +208,10 @@ suite('ClearMessagesCommand Tests', () => {
     });
 
     test('should handle no queues available', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Create a command with a mock queue provider that returns no queues
         const mockQueueProvider = {
@@ -227,7 +242,10 @@ suite('ClearMessagesCommand Tests', () => {
     });
 
     test('should handle clear messages when queue is empty', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Ensure queue is empty
         await queueProvider.clearMessages();

@@ -24,19 +24,21 @@ suite('AzuriteHealthCheck Tests', () => {
     });
 
     test('withHealthCheck should execute operation when Azurite is running', async () => {
-        // This test would need to be run when Azurite is actually running
-        // For now, we'll just test the structure
+        // Check if Azurite is running
+        const isAzuriteRunning = await AzuriteHealthCheck.isAzuriteRunning();
+        
+        if (!isAzuriteRunning) {
+            // Skip this test if Azurite is not running
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
+
         const testOperation = async () => {
             return 'test result';
         };
 
-        // We expect this to throw since Azurite is not running in test environment
-        try {
-            await AzuriteHealthCheck.withHealthCheck(testOperation);
-            assert.fail('Expected error to be thrown');
-        } catch (error) {
-            // Expected behavior when Azurite is not running
-            assert.strictEqual((error as Error).message, 'Azurite is not running');
-        }
+        // This should succeed when Azurite is running
+        const result = await AzuriteHealthCheck.withHealthCheck(testOperation);
+        assert.strictEqual(result, 'test result', 'Operation should execute successfully when Azurite is running');
     });
 });

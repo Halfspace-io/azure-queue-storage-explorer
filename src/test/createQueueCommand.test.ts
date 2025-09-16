@@ -34,7 +34,10 @@ suite('CreateQueueCommand Tests', () => {
     }
 
     test('should create queue successfully', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         const testQueueName = 'test-create-queue-' + Date.now();
         
@@ -78,7 +81,10 @@ suite('CreateQueueCommand Tests', () => {
     });
 
     test('should handle no queue name input gracefully', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Mock showInputBox to return undefined (user cancelled)
         const originalShowInputBox = vscode.window.showInputBox;
@@ -98,7 +104,10 @@ suite('CreateQueueCommand Tests', () => {
     });
 
     test('should validate empty queue name', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Mock showInputBox to test validation
         const originalShowInputBox = vscode.window.showInputBox;
@@ -120,7 +129,10 @@ suite('CreateQueueCommand Tests', () => {
     });
 
     test('should validate queue name length', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Mock showInputBox to test validation
         const originalShowInputBox = vscode.window.showInputBox;
@@ -149,7 +161,10 @@ suite('CreateQueueCommand Tests', () => {
     });
 
     test('should validate queue name format', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Mock showInputBox to test validation
         const originalShowInputBox = vscode.window.showInputBox;
@@ -188,7 +203,10 @@ suite('CreateQueueCommand Tests', () => {
     });
 
     test('should handle existing queue gracefully', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         const existingQueueName = 'existing-test-queue-' + Date.now();
         
@@ -230,7 +248,10 @@ suite('CreateQueueCommand Tests', () => {
     });
 
     test('should handle errors gracefully', async () => {
-        if (skipIfAzuriteNotRunning()) {return;}
+        if (skipIfAzuriteNotRunning()) {
+            console.log('Skipping test - Azurite is not running');
+            return;
+        }
 
         // Create a command with a mock queue provider that throws an error
         const mockQueueProvider = {

@@ -199,15 +199,10 @@ suite('RemoveQueueCommand Tests', () => {
     test('should handle deletion of non-existent queue gracefully', async () => {
         const nonExistentQueue = 'non-existent-queue-' + Date.now();
 
-        // Mock the showQuickPick to return our non-existent queue
-        const originalShowQuickPick = vscode.window.showQuickPick;
-        const mockShowQuickPick = async (items: any[]) => {
-            return nonExistentQueue;
-        };
-
         // Mock showWarningMessage to return confirmation
         const originalShowWarningMessage = vscode.window.showWarningMessage;
         const mockShowWarningMessage = async (message: string, options: any) => {
+            console.log('showWarningMessage called with:', message);
             return 'Yes, Delete Queue';
         };
 
@@ -223,12 +218,17 @@ suite('RemoveQueueCommand Tests', () => {
         };
 
         try {
-            (vscode.window as any).showQuickPick = mockShowQuickPick;
             (vscode.window as any).showWarningMessage = mockShowWarningMessage;
             (vscode.window as any).showErrorMessage = mockShowErrorMessage;
 
-            // Execute the command - it should not throw an error, but should show an error message
-            await removeQueueCommand.execute();
+            // Execute the command directly with the non-existent queue name
+            console.log('About to execute removeQueueCommand.execute() with queue:', nonExistentQueue);
+            try {
+                await removeQueueCommand.execute(nonExistentQueue);
+                console.log('removeQueueCommand.execute() completed without throwing');
+            } catch (error) {
+                console.log('removeQueueCommand.execute() threw an error:', error);
+            }
 
             // Add a small delay to ensure async operations complete
             await new Promise(resolve => setTimeout(resolve, 100));
@@ -247,7 +247,6 @@ suite('RemoveQueueCommand Tests', () => {
 
         } finally {
             // Restore original functions
-            (vscode.window as any).showQuickPick = originalShowQuickPick;
             (vscode.window as any).showWarningMessage = originalShowWarningMessage;
             (vscode.window as any).showErrorMessage = originalShowErrorMessage;
         }

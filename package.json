@@ -2,14 +2,14 @@
   "name": "azure-queue-storage-explorer",
   "displayName": "Azure Queue Storage Explorer",
   "description": "A VS Code extension for managing Azure Queue Storage with local Azurite emulator. Create queues, add/remove messages, and manage your local development queues with an intuitive interface.",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "publisher": "wj-halfspace",
   "repository": {
     "type": "git",
     "url": "https://github.com/wj-halfspace/azure-queue-storage-explorer.git"
   },
   "engines": {
-    "vscode": "^1.104.0"
+    "vscode": "^1.23.0"
   },
   "categories": [
     "Azure",
@@ -158,7 +158,7 @@
     "@azure/storage-queue": "^12.19.0"
   },
   "devDependencies": {
-    "@types/vscode": "^1.104.0",
+    "@types/vscode": "^1.23.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
     "@typescript-eslint/eslint-plugin": "^8.42.0",

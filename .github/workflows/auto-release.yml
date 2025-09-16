@@ -1,4 +1,4 @@
-name: Release
+name: Create New Github Release
 
 on:
   push:
@@ -6,7 +6,26 @@ on:
   workflow_dispatch:
 
 jobs:
+  get-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Get version
+      id: version
+      run: |
+        VERSION=$(node -p "require('./package.json').version")
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Version: $VERSION"
+        
   release:
+    needs: get-version
+    name: Release v${{ needs.get-version.outputs.version }} to GitHub Releases
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -35,9 +54,10 @@ jobs:
     - name: Get current version
       id: current-version
       run: |
-        CURRENT_VERSION=$(node -p "require('./package.json').version")
+        CURRENT_VERSION="${{ needs.get-version.outputs.version }}"
         echo "current-version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
         echo "Current version: $CURRENT_VERSION"
+        echo "::notice title=Releasing Version::Releasing version v$CURRENT_VERSION to GitHub Releases"
         
     - name: Update changelog
       run: |

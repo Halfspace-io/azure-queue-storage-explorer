@@ -28,11 +28,11 @@ A comprehensive VS Code extension for managing Azure Queue Storage with local Az
 
    **Option 2: Command Line**
    ```bash
-   npm install -g azurite
+   pnpm add -g azurite
    azurite --silent --location c:\azurite --debug c:\azurite\debug.log
    ```
 
-2. **VS Code**: Version 1.104.0 or higher
+2. **VS Code**: Version 1.98.2 or higher
 
 ## Usage
 

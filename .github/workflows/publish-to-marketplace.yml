@@ -10,12 +10,50 @@ on:
         default: 'latest'
 
 jobs:
+  get-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      release-tag: ${{ steps.version.outputs.release-tag }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Get version and release tag
+      id: version
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # Get version (default to latest)
+        VERSION="${{ github.event.inputs.version || 'latest' }}"
+        
+        # Get release tag
+        if [ "$VERSION" = "latest" ]; then
+          RELEASE_TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName')
+        else
+          RELEASE_TAG="$VERSION"
+        fi
+        
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "release-tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
+        echo "Version: $VERSION"
+        echo "Release tag: $RELEASE_TAG"
+        
   publish:
+    needs: get-version
+    name: Publish ${{ needs.get-version.outputs.release-tag }} to VS Code Marketplace
     runs-on: ubuntu-latest
     permissions:
       contents: read
     
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
     - name: Install pnpm
       uses: pnpm/action-setup@v2
       with:
@@ -29,17 +67,12 @@ jobs:
         # Install vsce
         pnpm add -g @vscode/vsce
         
-        # Get version (default to latest)
-        VERSION="${{ github.event.inputs.version || 'latest' }}"
-        
-        # Get release tag
-        if [ "$VERSION" = "latest" ]; then
-          RELEASE_TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName')
-        else
-          RELEASE_TAG="$VERSION"
-        fi
+        # Get version and release tag from previous job
+        VERSION="${{ needs.get-version.outputs.version }}"
+        RELEASE_TAG="${{ needs.get-version.outputs.release-tag }}"
         
         echo "Publishing release: $RELEASE_TAG"
+        echo "::notice title=Publishing to Marketplace::Publishing version $RELEASE_TAG to VS Code Marketplace"
         
         # Find and download the .vsix file
         VSIX_FILE=$(gh release view "$RELEASE_TAG" --json assets --jq '.assets[] | select(.name | contains(".vsix")) | .name' | head -n1)
